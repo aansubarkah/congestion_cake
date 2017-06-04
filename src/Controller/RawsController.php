@@ -12,7 +12,17 @@ use App\Controller\AppController;
  */
 class RawsController extends AppController
 {
+    public $title = 'Twitter';
+    public $limit = 10;
 
+    /*
+     * breadcrumbs variable, format like
+     * [['link 1', 'link title 1'], ['link 2', 'link title 2']]
+     *
+     * */
+    public $breadcrumbs = [
+        ['raws', 'Twitter']
+    ];
     /**
      * Index method
      *
@@ -20,11 +30,32 @@ class RawsController extends AppController
      */
     public function index()
     {
-        $this->paginate = [
-            'contain' => ['Respondents']
-        ];
-        $raws = $this->paginate($this->Raws);
+        $query = $this->Raws->find('all', [
+            'conditions' => ['Raws.active' => true],
+            'contain' => ['Respondents', 'Kinds'],
+            'limit' => $this->limit
+        ]);
 
+        if ($this->request->query('search'))
+        {
+            $query->where(['LOWER(info) LIKE' => '%' . strtolower($this->request->query('search')) . '%']);
+        }
+        if ($this->request->query('sort'))
+        {
+            $query->order([
+                $this->request->query('sort') => $this->request->query('direction')
+            ]);
+        } else {
+            $query->order(['t_time' => 'DESC']);
+        }
+        $this->paginate = ['limit' => $this->limit];
+
+        $breadcrumbs = $this->breadcrumbs;
+        $this->set('breadcrumbs', $breadcrumbs);
+
+        $raws = $this->paginate($query);
+        $this->set('title', 'Twitter');
+        $this->set('limit', $this->limit);
         $this->set(compact('raws'));
         $this->set('_serialize', ['raws']);
     }
@@ -41,9 +72,9 @@ class RawsController extends AppController
         $raw = $this->Raws->get($id, [
             'contain' => ['Respondents', 'Claps', 'Denominations', 'Elements', 'Fails', 'Kinds', 'Locations', 'Markers', 'Reviews']
         ]);
-
+        $this->set('title', 'Sumber');
         $this->set('raw', $raw);
-        $this->set('_serialize', ['raw']);
+        $this->set('_serialize', ['raw', 'title']);
     }
 
     /**
@@ -114,5 +145,10 @@ class RawsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    public function beforeRender(\Cake\Event\Event $event)
+    {
+        $this->viewBuilder()->theme('TwitterBootstrap');
     }
 }
