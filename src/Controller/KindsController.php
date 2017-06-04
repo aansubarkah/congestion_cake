@@ -21,7 +21,7 @@ class KindsController extends AppController
     public function index()
     {
         $this->paginate = [
-            'contain' => ['Raws', 'Classifications', 'Ts']
+            'contain' => ['Raws', 'Classifications']
         ];
         $kinds = $this->paginate($this->Kinds);
 
@@ -39,7 +39,7 @@ class KindsController extends AppController
     public function view($id = null)
     {
         $kind = $this->Kinds->get($id, [
-            'contain' => ['Raws', 'Classifications', 'Ts', 'Breeds', 'Chunks']
+            'contain' => ['Raws', 'Classifications', 'Breeds', 'Chunks']
         ]);
 
         $this->set('kind', $kind);
@@ -66,7 +66,7 @@ class KindsController extends AppController
         $raws = $this->Kinds->Raws->find('list', ['limit' => 200]);
         $classifications = $this->Kinds->Classifications->find('list', ['limit' => 200]);
         $ts = $this->Kinds->Ts->find('list', ['limit' => 200]);
-        $this->set(compact('kind', 'raws', 'classifications', 'ts'));
+        $this->set(compact('kind', 'raws', 'classifications'));
         $this->set('_serialize', ['kind']);
     }
 
@@ -94,7 +94,7 @@ class KindsController extends AppController
         $raws = $this->Kinds->Raws->find('list', ['limit' => 200]);
         $classifications = $this->Kinds->Classifications->find('list', ['limit' => 200]);
         $ts = $this->Kinds->Ts->find('list', ['limit' => 200]);
-        $this->set(compact('kind', 'raws', 'classifications', 'ts'));
+        $this->set(compact('kind', 'raws', 'classifications'));
         $this->set('_serialize', ['kind']);
     }
 

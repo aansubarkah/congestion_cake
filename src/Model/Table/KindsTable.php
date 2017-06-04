@@ -11,7 +11,6 @@ use Cake\Validation\Validator;
  *
  * @property \Cake\ORM\Association\BelongsTo $Raws
  * @property \Cake\ORM\Association\BelongsTo $Classifications
- * @property \Cake\ORM\Association\BelongsTo $Ts
  * @property \Cake\ORM\Association\HasMany $Breeds
  * @property \Cake\ORM\Association\HasMany $Chunks
  *
@@ -49,9 +48,6 @@ class KindsTable extends Table
         ]);
         $this->belongsTo('Classifications', [
             'foreignKey' => 'classification_id'
-        ]);
-        $this->belongsTo('Ts', [
-            'foreignKey' => 't_id'
         ]);
         $this->hasMany('Breeds', [
             'foreignKey' => 'kind_id'
@@ -102,7 +98,6 @@ class KindsTable extends Table
     {
         $rules->add($rules->existsIn(['raw_id'], 'Raws'));
         $rules->add($rules->existsIn(['classification_id'], 'Classifications'));
-        $rules->add($rules->existsIn(['t_id'], 'Ts'));
 
         return $rules;
     }

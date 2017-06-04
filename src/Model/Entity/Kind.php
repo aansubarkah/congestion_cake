@@ -19,7 +19,6 @@ use Cake\ORM\Entity;
  *
  * @property \App\Model\Entity\Raw $raw
  * @property \App\Model\Entity\Classification $classification
- * @property \App\Model\Entity\T $t
  * @property \App\Model\Entity\Breed[] $breeds
  * @property \App\Model\Entity\Chunk[] $chunks
  */
