@@ -23,6 +23,7 @@ class RawsController extends AppController
     public $breadcrumbs = [
         ['raws', 'Twitter']
     ];
+
     /**
      * Index method
      *
@@ -58,6 +59,89 @@ class RawsController extends AppController
         $this->set('limit', $this->limit);
         $this->set(compact('raws'));
         $this->set('_serialize', ['raws']);
+    }
+
+    /**
+     * Label method
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function label()
+    {
+        $allRelevant = null;
+        $allNotRelevant = null;
+        if ($this->request->is('post')) {
+            $allRelevant = explode(',', $this->request->getData('all_relevant'));
+            $allNotRelevant = explode(',', $this->request->getData('all_not_relevant'));
+
+            if (!empty($allRelevant))
+            {
+                $data = [];
+                foreach ($allRelevant as $value)
+                {
+                    array_push($data, [
+                        'raw_id' => $value,
+                        'classification_id' => 1,
+                        'user_id' => 1,
+                        'trained' => false,
+                        'active' => true
+                    ]);
+                }
+                $entities = $this->Raws->Denominations->newEntities($data);
+                $result = $this->Raws->Denominations->saveMany($entities);
+            }
+
+            if (!empty($allNotRelevant))
+            {
+                $data = [];
+                foreach ($allNotRelevant as $value)
+                {
+                    array_push($data, [
+                        'raw_id' => $value,
+                        'classification_id' => 2,
+                        'user_id' => 1,
+                        'trained' => false,
+                        'active' => true
+                    ]);
+                }
+                $entities = $this->Raws->Denominations->newEntities($data);
+                $result = $this->Raws->Denominations->saveMany($entities);
+            }
+        }
+        $query = $this->Raws->find('all', [
+            'contain' => [
+                'Denominations' => ['conditions' => ['Denominations.raw_id' => null]],
+                'Respondents',
+                'Kinds'
+            ],
+        ]);
+        if ($this->request->query('search'))
+        {
+            $query->where(['LOWER(info) LIKE' => '%' . strtolower($this->request->query('search')) . '%']);
+        }
+        if ($this->request->query('sort'))
+        {
+            $query->order([
+                $this->request->query('sort') => $this->request->query('direction')
+            ]);
+        } else {
+            $query->order(['t_time' => 'DESC']);
+        }
+        $this->paginate = ['limit' => $this->limit];
+
+        $breadcrumbs = [
+            ['raws', 'Twitter'],
+            ['raws/label', 'Label']
+        ];
+        $this->set('breadcrumbs', $breadcrumbs);
+
+        $raws = $this->paginate($query);
+        //$raws = $query->toArray();
+        $this->set('title', 'Twitter');
+        $this->set('limit', $this->limit);
+        $this->set(compact('raws'));
+        $this->set('allRelevant', $allRelevant);
+        $this->set('_serialize', ['raws', 'allRelevant', 'allNotRelevant']);
     }
 
     /**

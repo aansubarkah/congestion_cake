@@ -19,10 +19,12 @@ echo $this->Html->script([
     'moment-with-locales.min',
     'bootstrap.min',
     'sb-admin-2.min',
-    'metisMenu.min'
+    'metisMenu.min',
+    'bootstrap-checkbox.min'
 ]);
 echo $this->Html->css([
     'bootstrap.min',
+    'bootstrap-theme.min',
     'metisMenu.min',
     'sb-admin-2.min',
     'morris',
@@ -205,7 +207,7 @@ echo $this->Html->link(
 <?php
 echo $this->Html->link(
     '<i class="fa fa-twitter fa-fw"></i> Twitter',
-    ['controller' => 'raws',
+    ['controller' => 'DataTwitter',
     'action' => 'index'],
     ['escape' => false]
 );
@@ -242,6 +244,25 @@ echo '</li>';
 ?>
                         <li>
                             <a href="#">
+                                <i class="fa fa-commenting fa-fw"> </i>
+                                Label
+                                <span class="fa arrow"> </span>
+                            </a>
+                            <ul class="nav nav-second-level">
+<?php
+echo '<li>';
+echo $this->Html->link(
+    '<i class="fa fa-twitter fa-fw"></i> Twitter',
+    ['controller' => 'LabelTwitter', 'action' => 'index'],
+    ['escape' => false]
+);
+echo '</li>';
+?>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a href="#">
                                 <i class="fa fa-pied-piper fa-fw"> </i>
                                 Train
                                 <span class="fa arrow"> </span>
@@ -251,7 +272,7 @@ echo '</li>';
 echo '<li>';
 echo $this->Html->link(
     '<i class="fa fa-twitter fa-fw"></i> Twitter',
-    ['controller' => 'kinds', 'action' => 'index'],
+    ['controller' => 'TrainTwitter', 'action' => 'index'],
     ['escape' => false]
 );
 echo '</li>';
