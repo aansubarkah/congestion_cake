@@ -9,10 +9,8 @@ use Cake\Validation\Validator;
 /**
  * Words Model
  *
- * @property \Cake\ORM\Association\BelongsTo $Ts
+ * @property \Cake\ORM\Association\BelongsTo $Raws
  * @property \Cake\ORM\Association\BelongsTo $Tags
- * @property \Cake\ORM\Association\BelongsTo $Users
- * @property \Cake\ORM\Association\HasMany $Syllables
  *
  * @method \App\Model\Entity\Word get($primaryKey, $options = [])
  * @method \App\Model\Entity\Word newEntity($data = null, array $options = [])
@@ -43,17 +41,11 @@ class WordsTable extends Table
 
         $this->addBehavior('Timestamp');
 
-        $this->belongsTo('Ts', [
-            'foreignKey' => 't_id'
+        $this->belongsTo('Raws', [
+            'foreignKey' => 'raw_id'
         ]);
         $this->belongsTo('Tags', [
             'foreignKey' => 'tag_id'
-        ]);
-        $this->belongsTo('Users', [
-            'foreignKey' => 'user_id'
-        ]);
-        $this->hasMany('Syllables', [
-            'foreignKey' => 'word_id'
         ]);
     }
 
@@ -73,7 +65,7 @@ class WordsTable extends Table
             ->allowEmpty('sequence');
 
         $validator
-            ->allowEmpty('word');
+            ->allowEmpty('name');
 
         $validator
             ->boolean('verified')
@@ -87,6 +79,10 @@ class WordsTable extends Table
             ->boolean('active')
             ->allowEmpty('active');
 
+        $validator
+            ->boolean('processed')
+            ->allowEmpty('processed');
+
         return $validator;
     }
 
@@ -99,9 +95,8 @@ class WordsTable extends Table
      */
     public function buildRules(RulesChecker $rules)
     {
-        $rules->add($rules->existsIn(['t_id'], 'Ts'));
+        $rules->add($rules->existsIn(['raw_id'], 'Raws'));
         $rules->add($rules->existsIn(['tag_id'], 'Tags'));
-        $rules->add($rules->existsIn(['user_id'], 'Users'));
 
         return $rules;
     }

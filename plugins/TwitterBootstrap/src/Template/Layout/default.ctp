@@ -216,8 +216,8 @@ echo $this->Html->link(
                         <li>
 <?php
 echo $this->Html->link(
-    '<i class="fa fa-briefcase fa-fw"></i> Disposisi',
-    ['controller' => 'dispositions',
+    '<i class="fa fa-etsy fa-fw"></i> Tagging',
+    ['controller' => 'DataWord',
     'action' => 'index'],
     ['escape' => false]
 );
@@ -260,7 +260,6 @@ echo '</li>';
 ?>
                             </ul>
                         </li>
-
                         <li>
                             <a href="#">
                                 <i class="fa fa-pied-piper fa-fw"> </i>
@@ -278,6 +277,25 @@ echo $this->Html->link(
 echo '</li>';
 ?>
                             </ul>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="fa fa-database fa-fw"> </i>
+                                Permanent File
+                                <span class="fa arrow"> </span>
+                            </a>
+                            <ul class="nav nav-second-level">
+<?php
+echo '<li>';
+echo $this->Html->link(
+    '<i class="fa fa-flag fa-fw"></i> Label',
+    ['controller' => 'Tags', 'action' => 'index'],
+    ['escape' => false]
+);
+echo '</li>';
+?>
+                            </ul>
+
                         </li>
                     </ul>
                 </div>

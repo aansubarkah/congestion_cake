@@ -10,7 +10,8 @@ use Cake\Validation\Validator;
  * Syllables Model
  *
  * @property \Cake\ORM\Association\BelongsTo $Users
- * @property \Cake\ORM\Association\BelongsTo $Words
+ * @property \Cake\ORM\Association\BelongsTo $Raws
+ * @property \Cake\ORM\Association\BelongsTo $Tags
  *
  * @method \App\Model\Entity\Syllable get($primaryKey, $options = [])
  * @method \App\Model\Entity\Syllable newEntity($data = null, array $options = [])
@@ -44,8 +45,11 @@ class SyllablesTable extends Table
         $this->belongsTo('Users', [
             'foreignKey' => 'user_id'
         ]);
-        $this->belongsTo('Words', [
-            'foreignKey' => 'word_id'
+        $this->belongsTo('Raws', [
+            'foreignKey' => 'raw_id'
+        ]);
+        $this->belongsTo('Tags', [
+            'foreignKey' => 'tag_id'
         ]);
     }
 
@@ -69,7 +73,11 @@ class SyllablesTable extends Table
             ->allowEmpty('active');
 
         $validator
-            ->allowEmpty('word');
+            ->allowEmpty('name');
+
+        $validator
+            ->integer('sequence')
+            ->allowEmpty('sequence');
 
         return $validator;
     }
@@ -84,7 +92,8 @@ class SyllablesTable extends Table
     public function buildRules(RulesChecker $rules)
     {
         $rules->add($rules->existsIn(['user_id'], 'Users'));
-        $rules->add($rules->existsIn(['word_id'], 'Words'));
+        $rules->add($rules->existsIn(['raw_id'], 'Raws'));
+        $rules->add($rules->existsIn(['tag_id'], 'Tags'));
 
         return $rules;
     }

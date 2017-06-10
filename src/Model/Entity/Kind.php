@@ -16,6 +16,7 @@ use Cake\ORM\Entity;
  * @property int $t_id
  * @property bool $verified
  * @property bool $trained
+ * @property bool $chunked
  *
  * @property \App\Model\Entity\Raw $raw
  * @property \App\Model\Entity\Classification $classification

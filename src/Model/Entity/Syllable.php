@@ -8,14 +8,18 @@ use Cake\ORM\Entity;
  *
  * @property int $id
  * @property int $user_id
- * @property int $word_id
+ * @property int $raw_id
  * @property bool $trained
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  * @property bool $active
+ * @property string $name
+ * @property int $tag_id
+ * @property int $sequence
  *
- * @property \App\Model\Entity\Word $word
  * @property \App\Model\Entity\User $user
+ * @property \App\Model\Entity\Raw $raw
+ * @property \App\Model\Entity\Tag $tag
  */
 class Syllable extends Entity
 {

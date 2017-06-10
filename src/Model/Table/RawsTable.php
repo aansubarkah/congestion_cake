@@ -18,6 +18,10 @@ use Cake\Validation\Validator;
  * @property \Cake\ORM\Association\HasMany $Locations
  * @property \Cake\ORM\Association\HasMany $Markers
  * @property \Cake\ORM\Association\HasMany $Reviews
+ * @property \Cake\ORM\Association\HasMany $Words
+ * @property \Cake\ORM\Association\HasMany $Syllables
+ * @property \Cake\ORM\Association\HasMany $DataWord
+ * @property \Cake\ORM\Association\HasMany $DataSyllable
  *
  * @method \App\Model\Entity\Raw get($primaryKey, $options = [])
  * @method \App\Model\Entity\Raw newEntity($data = null, array $options = [])
@@ -73,6 +77,18 @@ class RawsTable extends Table
             'foreignKey' => 'raw_id'
         ]);
         $this->hasMany('Reviews', [
+            'foreignKey' => 'raw_id'
+        ]);
+        $this->hasMany('Words', [
+            'foreignKey' => 'raw_id'
+        ]);
+        $this->hasMany('Syllables', [
+            'foreignKey' => 'raw_id'
+        ]);
+        $this->hasMany('DataSyllable', [
+            'foreignKey' => 'raw_id'
+        ]);
+        $this->hasMany('DataWord', [
             'foreignKey' => 'raw_id'
         ]);
     }

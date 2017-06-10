@@ -84,6 +84,10 @@ class KindsTable extends Table
             ->boolean('trained')
             ->allowEmpty('trained');
 
+        $validator
+            ->boolean('chunked')
+            ->allowEmpty('chunked');
+
         return $validator;
     }
 

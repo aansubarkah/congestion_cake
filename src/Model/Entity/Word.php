@@ -7,16 +7,16 @@ use Cake\ORM\Entity;
  * Word Entity
  *
  * @property int $id
- * @property int $t_id
+ * @property int $raw_id
  * @property int $tag_id
- * @property int $user_id
  * @property int $sequence
- * @property string $word
+ * @property string $name
  * @property bool $verified
  * @property bool $trained
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  * @property bool $active
+ * @property bool $processed
  *
  * @property \App\Model\Entity\T $t
  * @property \App\Model\Entity\Tag $tag

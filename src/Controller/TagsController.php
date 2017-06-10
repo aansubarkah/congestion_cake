@@ -12,6 +12,18 @@ use App\Controller\AppController;
  */
 class TagsController extends AppController
 {
+    public $title = 'Twitter';
+    public $limit = 50;
+
+    /*
+     * breadcrumbs variable, format like
+     * [['link 1', 'link title 1'], ['link 2', 'link title 2']]
+     *
+     * */
+    public $breadcrumbs = [
+        ['tags', 'Label']
+    ];
+
 
     /**
      * Index method
@@ -20,10 +32,32 @@ class TagsController extends AppController
      */
     public function index()
     {
-        $tags = $this->paginate($this->Tags);
+        $query = $this->Tags->find('all', [
+            'limit' => $this->limit
+        ]);
 
-        $this->set(compact('tags'));
-        $this->set('_serialize', ['tags']);
+        if ($this->request->query('search'))
+        {
+            $query->where(['LOWER(name) LIKE' => '%' . strtolower($this->request->query('search')) . '%']);
+        }
+        if ($this->request->query('sort'))
+        {
+            $query->order([
+                $this->request->query('sort') => $this->request->query('direction')
+            ]);
+        } else {
+            $query->order(['name' => 'ASC']);
+        }
+        $this->paginate = ['limit' => $this->limit];
+
+        $breadcrumbs = $this->breadcrumbs;
+        $this->set('breadcrumbs', $breadcrumbs);
+
+        $data = $this->paginate($query);
+        $this->set('title', 'Label');
+        $this->set('limit', $this->limit);
+        $this->set(compact('data'));
+        $this->set('_serialize', ['data']);
     }
 
     /**
@@ -108,4 +142,10 @@ class TagsController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
+
+    public function beforeRender(\Cake\Event\Event $event)
+    {
+        $this->viewBuilder()->theme('TwitterBootstrap');
+    }
+
 }

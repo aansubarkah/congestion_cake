@@ -33,7 +33,6 @@ class WordsTableTest extends TestCase
         'app.locations',
         'app.raws',
         'app.respondents',
-        'app.t_users',
         'app.markers',
         'app.categories',
         'app.humans',
@@ -58,6 +57,7 @@ class WordsTableTest extends TestCase
         'app.fails',
         'app.errors',
         'app.reviews',
+        'app.t_users',
         'app.logs',
         'app.syllables'
     ];

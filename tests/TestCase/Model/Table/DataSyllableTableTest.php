@@ -1,22 +1,22 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
-use App\Model\Table\SyllablesTable;
+use App\Model\Table\DataSyllableTable;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
 /**
- * App\Model\Table\SyllablesTable Test Case
+ * App\Model\Table\DataSyllableTable Test Case
  */
-class SyllablesTableTest extends TestCase
+class DataSyllableTableTest extends TestCase
 {
 
     /**
      * Test subject
      *
-     * @var \App\Model\Table\SyllablesTable
+     * @var \App\Model\Table\DataSyllableTable
      */
-    public $Syllables;
+    public $DataSyllable;
 
     /**
      * Fixtures
@@ -24,23 +24,20 @@ class SyllablesTableTest extends TestCase
      * @var array
      */
     public $fixtures = [
-        'app.syllables',
-        'app.users',
-        'app.groups',
-        'app.regions',
-        'app.locations',
+        'app.data_syllable',
         'app.raws',
         'app.respondents',
-        'app.markers',
-        'app.categories',
-        'app.humans',
-        'app.ts',
-        'app.classifications',
+        'app.regions',
+        'app.locations',
+        'app.users',
+        'app.groups',
+        'app.t_users',
         'app.breeds',
         'app.kinds',
-        'app.chunks',
-        'app.pieces',
-        'app.spots',
+        'app.classifications',
+        'app.denominations',
+        'app.humans',
+        'app.ts',
         'app.places',
         'app.regencies',
         'app.states',
@@ -48,18 +45,24 @@ class SyllablesTableTest extends TestCase
         'app.districts',
         'app.regencies_regions',
         'app.machines',
+        'app.categories',
+        'app.markers',
         'app.weather',
         'app.elements',
+        'app.spots',
+        'app.chunks',
+        'app.pieces',
         'app.spaces',
-        'app.denominations',
-        'app.claps',
-        'app.fails',
-        'app.errors',
-        'app.reviews',
-        'app.t_users',
         'app.logs',
+        'app.reviews',
+        'app.errors',
+        'app.fails',
+        'app.syllables',
+        'app.tags',
         'app.words',
-        'app.tags'
+        'app.claps',
+        'app.data_syllables',
+        'app.data_words'
     ];
 
     /**
@@ -70,8 +73,8 @@ class SyllablesTableTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $config = TableRegistry::exists('Syllables') ? [] : ['className' => 'App\Model\Table\SyllablesTable'];
-        $this->Syllables = TableRegistry::get('Syllables', $config);
+        $config = TableRegistry::exists('DataSyllable') ? [] : ['className' => 'App\Model\Table\DataSyllableTable'];
+        $this->DataSyllable = TableRegistry::get('DataSyllable', $config);
     }
 
     /**
@@ -81,7 +84,7 @@ class SyllablesTableTest extends TestCase
      */
     public function tearDown()
     {
-        unset($this->Syllables);
+        unset($this->DataSyllable);
 
         parent::tearDown();
     }

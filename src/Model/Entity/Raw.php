@@ -29,6 +29,10 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\Location[] $locations
  * @property \App\Model\Entity\Marker[] $markers
  * @property \App\Model\Entity\Review[] $reviews
+ * @property \App\Model\Entity\Syllable[] $syllables
+ * @property \App\Model\Entity\Word[] $words
+ * @property \App\Model\Entity\DataWord[] $datawords
+ * @property \App\Model\Entity\DataSyllable[] $datasyllables
  */
 class Raw extends Entity
 {
