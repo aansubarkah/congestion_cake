@@ -22,6 +22,8 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\Kind $kind
  * @property \App\Model\Entity\Classification $classification
  * @property \App\Model\Entity\Respondent $respondent
+ * @property \App\Model\Entity\DataChunk $datachunk
+ * @property \App\Model\Entity\DataPiece $datapiece
  */
 class DataTwitter extends Entity
 {

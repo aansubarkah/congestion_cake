@@ -197,7 +197,7 @@ if (isset($user)) {
 <?php
 echo $this->Html->link(
     '<i class="fa fa-home fa-fw"></i> Beranda',
-    ['controller' => 'letters',
+    ['controller' => 'DataTwitter',
     'action' => 'index'],
     ['escape' => false]
 );
@@ -226,22 +226,13 @@ echo $this->Html->link(
                         <li>
 <?php
 echo $this->Html->link(
-    '<i class="fa fa-sitemap fa-fw"></i> Organisasi',
-    ['controller' => 'departements',
+    '<i class="fa fa-paperclip fa-fw"></i> Chunking',
+    ['controller' => 'DataChunk',
     'action' => 'index'],
     ['escape' => false]
 );
 ?>
                         </li>
-<?php
-echo '<li>';
-echo $this->Html->link(
-    '<i class="fa fa-user fa-fw"></i> Responden',
-    ['controller' => 'respondents', 'action' => 'index'],
-    ['escape' => false]
-);
-echo '</li>';
-?>
                         <li>
                             <a href="#">
                                 <i class="fa fa-commenting fa-fw"> </i>
@@ -314,7 +305,7 @@ echo '</li>';
                         <li>
 <?php
 echo $this->Html->link('Beranda', [
-    'controller' => 'letters',
+    'controller' => 'DataTwitter',
     'action' => 'index'
 ]);
 ?>

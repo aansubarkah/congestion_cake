@@ -86,6 +86,9 @@ class DataSyllableTable extends Table
         $validator
             ->allowEmpty('tag_description');
 
+        $validator
+            ->allowEmpty('verified');
+
         return $validator;
     }
 

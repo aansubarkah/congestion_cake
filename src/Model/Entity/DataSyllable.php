@@ -18,6 +18,7 @@ use Cake\ORM\Entity;
  * @property int $tag_id
  * @property string $tag_name
  * @property string $tag_description
+ * @property bool $verified
  *
  * @property \App\Model\Entity\Raw $raw
  * @property \App\Model\Entity\Kind $kind

@@ -16,6 +16,8 @@ use Cake\Validation\Validator;
  * @property \Cake\ORM\Association\BelongsTo $MtClassifications
  * @property \Cake\ORM\Association\BelongsTo $Classifications
  * @property \Cake\ORM\Association\BelongsTo $Respondents
+ * @property \Cake\ORM\Association\HasMany $DataChunk
+ * @property \Cake\ORM\Association\HasMany $DataPiece
  *
  * @method \App\Model\Entity\DataTwitter get($primaryKey, $options = [])
  * @method \App\Model\Entity\DataTwitter newEntity($data = null, array $options = [])
@@ -37,6 +39,7 @@ class DataTwitterTable extends Table
     public function initialize(array $config)
     {
         parent::initialize($config);
+        $this->setPrimaryKey('raw_id');
 
         $this->setTable('data_twitter');
 
@@ -60,6 +63,12 @@ class DataTwitterTable extends Table
         ]);
         $this->belongsTo('Respondents', [
             'foreignKey' => 'respondent_id'
+        ]);
+        $this->hasMany('DataChunk', [
+            'foreignKey' => 'raw_id'
+        ]);
+        $this->hasMany('DataPiece', [
+            'foreignKey' => 'raw_id'
         ]);
     }
 

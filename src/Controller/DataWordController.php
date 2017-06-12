@@ -13,7 +13,7 @@ use Cake\ORM\TableRegistry;
  */
 class DataWordController extends AppController
 {
-    public $title = 'POS TAG';
+    public $title = 'Tagging';
     public $limit = 10;
 
     /*
@@ -22,7 +22,7 @@ class DataWordController extends AppController
      *
      * */
     public $breadcrumbs = [
-        ['data-word', 'POS TAG']
+        ['data-word', 'Tagging']
     ];
 
     /**
@@ -32,18 +32,55 @@ class DataWordController extends AppController
      */
     public function index()
     {
-        /*$this->paginate = [
-            'contain' => ['Raws', 'Kinds', 'Classifications', 'Words', 'Tags']
-        ];
-        $dataWord = $this->paginate($this->DataWord);
+        $allNewSyllable = null;
+        $allNewTag = null;
+        if ($this->request->is('post'))
+        {
+            $allNewSyllable = explode(',', $this->request->getData('new_syllable_ids'));
+            $allNewTag = explode(',', $this->request->getData('new_tag_ids'));
 
-        $this->set(compact('dataWord'));
-        $this->set('_serialize', ['dataWord']);*/
+            if (!empty($allNewSyllable))
+            {
+                $data = [];
+                $rawIds = [];
+                for ($i = 0; $i < count($allNewSyllable); $i++)
+                {
+                    $query = $this->DataWord->Raws->Syllables->query();
+                    $query->update()
+                        ->set([
+                            'tag_id' => $allNewTag[$i],
+                            'user_id' => 1
+                        ])
+                        ->where(['id' => $allNewSyllable[$i]])
+                        ->execute();
+                    // get raw_id
+                    $rawId = $this->DataWord->Raws->Syllables->get($allNewSyllable[$i]);
+                    array_push($rawIds, $rawId['raw_id']);
+                }
+
+                // remove duplicates from raw_id array
+                $rawIds = array_unique($rawIds);
+                // update syllable
+                foreach ($rawIds as $value)
+                {
+                    $query = $this->DataWord->Raws->Syllables->query();
+                    $query->update()
+                        ->set(['verified' => true])
+                        ->where(['raw_id' => $value])
+                        ->execute();
+                }
+            }
+        }
+
+        $tags = $this->DataWord->Tags->find('all', [
+            'order' => ['Tags.name']
+        ]);
+
         $query = $this->DataWord->Raws->Kinds->find('all', [
             'contain' => [
                 'Raws',
-                'Raws.DataWord',
-                'Raws.DataSyllable'
+                'Raws.DataWord' => ['sort' => ['DataWord.sequence' => 'ASC']],
+                'Raws.DataSyllable' => ['sort' => ['DataSyllable.sequence' => 'ASC']],
             ],
             'conditions' => ['Kinds.classification_id' => 1]
         ]);
@@ -67,7 +104,8 @@ class DataWordController extends AppController
         $this->set('title', $this->title);
         $this->set('limit', $this->limit);
         $this->set(compact('data'));
-        $this->set('_serialize', ['data']);
+        $this->set('tags', $tags);
+        $this->set('_serialize', ['data', 'tags']);
     }
 
     /**
