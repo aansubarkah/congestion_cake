@@ -234,6 +234,16 @@ echo $this->Html->link(
 ?>
                         </li>
                         <li>
+<?php
+echo $this->Html->link(
+    '<i class="fa fa-map fa-fw"></i> Locating',
+    ['controller' => 'DataSpot',
+    'action' => 'index'],
+    ['escape' => false]
+);
+?>
+                        </li>
+                        <li>
                             <a href="#">
                                 <i class="fa fa-commenting fa-fw"> </i>
                                 Label

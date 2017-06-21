@@ -24,6 +24,7 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\Respondent $respondent
  * @property \App\Model\Entity\DataChunk $datachunk
  * @property \App\Model\Entity\DataPiece $datapiece
+ * @property \App\Model\Entity\DataSpot $dataspot
  */
 class DataTwitter extends Entity
 {

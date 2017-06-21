@@ -267,6 +267,7 @@ foreach ($tags as $value)
 {
     echo $value['id'];
     echo ":";
+    //echo "'" . $value['example'] . "'";
     echo "'" . $value['description'] . "'";
     echo ",";
 }

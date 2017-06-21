@@ -18,6 +18,7 @@ use Cake\Validation\Validator;
  * @property \Cake\ORM\Association\BelongsTo $Respondents
  * @property \Cake\ORM\Association\HasMany $DataChunk
  * @property \Cake\ORM\Association\HasMany $DataPiece
+ * @property \Cake\ORM\Association\HasMany $DataSpot
  *
  * @method \App\Model\Entity\DataTwitter get($primaryKey, $options = [])
  * @method \App\Model\Entity\DataTwitter newEntity($data = null, array $options = [])
@@ -68,6 +69,9 @@ class DataTwitterTable extends Table
             'foreignKey' => 'raw_id'
         ]);
         $this->hasMany('DataPiece', [
+            'foreignKey' => 'raw_id'
+        ]);
+        $this->hasMany('DataSpot', [
             'foreignKey' => 'raw_id'
         ]);
     }
