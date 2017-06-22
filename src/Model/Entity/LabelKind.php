@@ -4,7 +4,7 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * DataTwitter Entity
+ * LabelKind Entity
  *
  * @property int $raw_id
  * @property string $info
@@ -20,17 +20,13 @@ use Cake\ORM\Entity;
  *
  * @property \App\Model\Entity\Raw $raw
  * @property \App\Model\Entity\Kind $kind
+ * @property \App\Model\Entity\AtClassification $at_classification
+ * @property \App\Model\Entity\Denomination $denomination
+ * @property \App\Model\Entity\MtClassification $mt_classification
  * @property \App\Model\Entity\Classification $classification
  * @property \App\Model\Entity\Respondent $respondent
- * @property \App\Model\Entity\DataChunk $datachunk
- * @property \App\Model\Entity\DataPiece $datapiece
- * @property \App\Model\Entity\DataSpot $dataspot
- * @property \App\Model\Entity\LabelKind $labelkind
- * @property \App\Model\Entity\LabelWord $labelword
- * @property \App\Model\Entity\LabelChunk $labelchunk
- * @property \App\Model\Entity\LabelSpot $labelspot
  */
-class DataTwitter extends Entity
+class LabelKind extends Entity
 {
 
 }

@@ -13,7 +13,7 @@ echo $title;
     </title>
 
     <?= $this->Html->meta('icon') ?>
-    <?php
+<?php
 echo $this->Html->script([
     'jquery-3.1.1.min',
     'moment-with-locales.min',
@@ -30,7 +30,7 @@ echo $this->Html->css([
     'morris',
     'font-awesome.min'
 ]);
-    ?>
+?>
     <?= $this->fetch('meta') ?>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -214,6 +214,24 @@ echo $this->Html->link(
 ?>
                         </li>
                         <li>
+                        <a href="#">
+                                <i class="fa fa-gears fa-fw"> </i>
+                                Machine Process
+                                <span class="fa arrow"> </span>
+                            </a>
+                            <ul class="nav nav-second-level">
+
+                        <li>
+<?php
+echo $this->Html->link(
+    '<i class="fa fa-blind fa-fw"></i> Classifying',
+    ['controller' => 'DataKind',
+    'action' => 'index'],
+    ['escape' => false]
+);
+?>
+                        </li>
+                        <li>
 <?php
 echo $this->Html->link(
     '<i class="fa fa-etsy fa-fw"></i> Tagging',
@@ -243,9 +261,11 @@ echo $this->Html->link(
 );
 ?>
                         </li>
+                        </ul>
+                        </li>
                         <li>
                             <a href="#">
-                                <i class="fa fa-commenting fa-fw"> </i>
+                                <i class="fa fa-flag fa-fw"> </i>
                                 Label
                                 <span class="fa arrow"> </span>
                             </a>

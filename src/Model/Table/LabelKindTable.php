@@ -7,7 +7,7 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
 /**
- * DataTwitter Model
+ * LabelKind Model
  *
  * @property \Cake\ORM\Association\BelongsTo $Raws
  * @property \Cake\ORM\Association\BelongsTo $Kinds
@@ -16,23 +16,17 @@ use Cake\Validation\Validator;
  * @property \Cake\ORM\Association\BelongsTo $MtClassifications
  * @property \Cake\ORM\Association\BelongsTo $Classifications
  * @property \Cake\ORM\Association\BelongsTo $Respondents
- * @property \Cake\ORM\Association\HasMany $DataChunk
- * @property \Cake\ORM\Association\HasMany $DataPiece
- * @property \Cake\ORM\Association\HasMany $DataSpot
- * @property \Cake\ORM\Association\HasMany $LabelKind
- * @property \Cake\ORM\Association\HasMany $LabelWord
- * @property \Cake\ORM\Association\HasMany $LabelChunk
- * @property \Cake\ORM\Association\HasMany $LabelSpot
+ * @property \Cake\ORM\Association\BelongsTo $DataTwitter
  *
- * @method \App\Model\Entity\DataTwitter get($primaryKey, $options = [])
- * @method \App\Model\Entity\DataTwitter newEntity($data = null, array $options = [])
- * @method \App\Model\Entity\DataTwitter[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\DataTwitter|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\DataTwitter patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\DataTwitter[] patchEntities($entities, array $data, array $options = [])
- * @method \App\Model\Entity\DataTwitter findOrCreate($search, callable $callback = null, $options = [])
+ * @method \App\Model\Entity\LabelKind get($primaryKey, $options = [])
+ * @method \App\Model\Entity\LabelKind newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\LabelKind[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\LabelKind|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\LabelKind patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\LabelKind[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\LabelKind findOrCreate($search, callable $callback = null, $options = [])
  */
-class DataTwitterTable extends Table
+class LabelKindTable extends Table
 {
 
     /**
@@ -44,9 +38,8 @@ class DataTwitterTable extends Table
     public function initialize(array $config)
     {
         parent::initialize($config);
-        $this->setPrimaryKey('raw_id');
 
-        $this->setTable('data_twitter');
+        $this->setTable('label_kind');
 
         $this->belongsTo('Raws', [
             'foreignKey' => 'raw_id'
@@ -69,25 +62,7 @@ class DataTwitterTable extends Table
         $this->belongsTo('Respondents', [
             'foreignKey' => 'respondent_id'
         ]);
-        $this->hasMany('DataChunk', [
-            'foreignKey' => 'raw_id'
-        ]);
-        $this->hasMany('DataPiece', [
-            'foreignKey' => 'raw_id'
-        ]);
-        $this->hasMany('DataSpot', [
-            'foreignKey' => 'raw_id'
-        ]);
-        $this->hasMany('LabelKind', [
-            'foreignKey' => 'raw_id'
-        ]);
-        $this->hasMany('LabelWord', [
-            'foreignKey' => 'raw_id'
-        ]);
-        $this->hasMany('LabelChunk', [
-            'foreignKey' => 'raw_id'
-        ]);
-        $this->hasMany('LabelSpot', [
+        $this->belongsTo('DataTwitter', [
             'foreignKey' => 'raw_id'
         ]);
 

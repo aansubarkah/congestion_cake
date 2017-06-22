@@ -14,7 +14,7 @@ use Cake\ORM\TableRegistry;
 class DataTwitterController extends AppController
 {
     public $title = 'Twitter';
-    public $limit = 10;
+    public $limit = 5;
 
     /*
      * breadcrumbs variable, format like
@@ -31,6 +31,80 @@ class DataTwitterController extends AppController
      * @return \Cake\Http\Response|null
      */
     public function index()
+    {
+        $allRelevant = null;
+        $allNotRelevant = null;
+        if ($this->request->is('post')) {
+            $allRelevant = explode(',', $this->request->getData('all_relevant'));
+            $allNotRelevant = explode(',', $this->request->getData('all_not_relevant'));
+
+            if (!empty($allRelevant))
+            {
+                $data = [];
+                foreach ($allRelevant as $value)
+                {
+                    array_push($data, [
+                        'raw_id' => $value,
+                        'classification_id' => 1,
+                        'user_id' => 1,
+                        'trained' => false,
+                        'active' => true
+                    ]);
+                }
+                $label = TableRegistry::get('Denominations');
+                $entities = $label->newEntities($data);
+                $result = $label->saveMany($entities);
+            }
+
+            if (!empty($allNotRelevant))
+            {
+                $data = [];
+                foreach ($allNotRelevant as $value)
+                {
+                    array_push($data, [
+                        'raw_id' => $value,
+                        'classification_id' => 2,
+                        'user_id' => 1,
+                        'trained' => false,
+                        'active' => true
+                    ]);
+                }
+                $label = TableRegistry::get('Denominations');
+                $entities = $label->newEntities($data);
+                $result = $label->saveMany($entities);
+            }
+        }
+
+        $query = $this->DataTwitter->find('all', [
+            'contain' => ['DataChunk', 'DataSpot']
+        ]);
+        if ($this->request->query('search'))
+        {
+            $query->where(['LOWER(info) LIKE' => '%' . strtolower($this->request->query('search')) . '%']);
+        }
+        if ($this->request->query('sort'))
+        {
+            $query->order([
+                $this->request->query('sort') => $this->request->query('direction')
+            ]);
+        }
+        $this->paginate = ['limit' => $this->limit];
+
+        $this->set('breadcrumbs', $this->breadcrumbs);
+
+        $data = $this->paginate($query);
+        $this->set('title', 'Twitter');
+        $this->set('limit', $this->limit);
+        $this->set(compact('data'));
+        $this->set('_serialize', ['data']);
+    }
+
+    /**
+     * Index method
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function index1()
     {
         $allRelevant = null;
         $allNotRelevant = null;
