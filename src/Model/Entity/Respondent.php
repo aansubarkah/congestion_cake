@@ -18,6 +18,7 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\Region $region
  * @property \App\Model\Entity\Marker[] $markers
  * @property \App\Model\Entity\Raw[] $raws
+ * @property \App\Model\Entity\DataTwitter[] $datatwitter
  */
 class Respondent extends Entity
 {

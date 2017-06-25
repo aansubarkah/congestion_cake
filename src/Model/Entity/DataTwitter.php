@@ -17,6 +17,10 @@ use Cake\ORM\Entity;
  * @property string $classification_name
  * @property int $respondent_id
  * @property string $respondent_name
+ * @proerty boolean $classifying
+ * @property boolean $tagging
+ * @property boolean $chunking
+ * @property boolean $locating
  *
  * @property \App\Model\Entity\Raw $raw
  * @property \App\Model\Entity\Kind $kind

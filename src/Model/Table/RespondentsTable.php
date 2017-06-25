@@ -12,6 +12,7 @@ use Cake\Validation\Validator;
  * @property \Cake\ORM\Association\BelongsTo $Regions
  * @property \Cake\ORM\Association\HasMany $Markers
  * @property \Cake\ORM\Association\HasMany $Raws
+ * @property \Cake\ORM\Association\HasMany $DataTwitter
  *
  * @method \App\Model\Entity\Respondent get($primaryKey, $options = [])
  * @method \App\Model\Entity\Respondent newEntity($data = null, array $options = [])
@@ -45,6 +46,9 @@ class RespondentsTable extends Table
             'foreignKey' => 'respondent_id'
         ]);
         $this->hasMany('Raws', [
+            'foreignKey' => 'respondent_id'
+        ]);
+        $this->hasMany('DataTwitter', [
             'foreignKey' => 'respondent_id'
         ]);
     }

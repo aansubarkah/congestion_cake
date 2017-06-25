@@ -2,7 +2,8 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
-
+use Cake\ORM\TableRegistry;
+use Cake\I18n\Date;
 /**
  * LabelKind Controller
  *
@@ -12,6 +13,17 @@ use App\Controller\AppController;
  */
 class LabelKindController extends AppController
 {
+    public $title = 'Twitter';
+    public $limit = 10;
+
+    /*
+     * breadcrumbs variable, format like
+     * [['link 1', 'link title 1'], ['link 2', 'link title 2']]
+     *
+     * */
+    public $breadcrumbs = [
+        ['raws', 'Twitter']
+    ];
 
     /**
      * Index method
@@ -20,13 +32,112 @@ class LabelKindController extends AppController
      */
     public function index()
     {
-        $this->paginate = [
-            'contain' => ['Raws', 'Kinds', 'AtClassifications', 'Denominations', 'MtClassifications', 'Classifications', 'Respondents']
-        ];
-        $labelKind = $this->paginate($this->LabelKind);
+        $allRelevant = null;
+        $allNotRelevant = null;
+        if ($this->request->is('post')) {
+            $allRelevant = explode(',', $this->request->getData('all_relevant'));
+            $allNotRelevant = explode(',', $this->request->getData('all_not_relevant'));
 
-        $this->set(compact('labelKind'));
-        $this->set('_serialize', ['labelKind']);
+            if (!empty($allRelevant))
+            {
+                $data = [];
+                foreach ($allRelevant as $value)
+                {
+                    array_push($data, [
+                        'raw_id' => $value,
+                        'classification_id' => 1,
+                        'user_id' => 1,
+                        'trained' => false,
+                        'active' => true
+                    ]);
+                    // Update Raw
+                    $Raw = TableRegistry::get('Raws');
+                    $queryUpdateRaw = $Raw->query();
+                    $Kind = TableRegistry::get('Kinds');
+                    $queryUpdateKind = $Kind->query();
+
+                    $queryUpdateRaw->update()
+                        ->set(['classifying' => true])
+                        ->where(['id' => $value])
+                        ->execute();
+                    // Update Kind
+                    $queryUpdateKind->update()
+                        ->set(['verified' => true])
+                        ->where(['raw_id' => $value])
+                        ->execute();
+
+                }
+                $label = TableRegistry::get('Denominations');
+                $entities = $label->newEntities($data);
+                $result = $label->saveMany($entities);
+            }
+
+            if (!empty($allNotRelevant))
+            {
+                $data = [];
+                foreach ($allNotRelevant as $value)
+                {
+                    array_push($data, [
+                        'raw_id' => $value,
+                        'classification_id' => 2,
+                        'user_id' => 1,
+                        'trained' => false,
+                        'active' => true
+                    ]);
+                    // Update Raw
+                    $Raw = TableRegistry::get('Raws');
+                    $queryUpdateRaw = $Raw->query();
+                    $Kind = TableRegistry::get('Kinds');
+                    $queryUpdateKind = $Kind->query();
+
+                    $queryUpdateRaw->update()
+                        ->set(['classifying' => true])
+                        ->where(['id' => $value])
+                        ->execute();
+                    // Update Kind
+                    $queryUpdateKind->update()
+                        ->set(['verified' => true])
+                        ->where(['raw_id' => $value])
+                        ->execute();
+                }
+                $label = TableRegistry::get('Denominations');
+                $entities = $label->newEntities($data);
+                $result = $label->saveMany($entities);
+            }
+        }
+
+        $respondents = $this->LabelKind->DataTwitter->Respondents->find('all', [
+            'conditions' => ['Respondents.official' => true, 'Respondents.active' => true],
+            'order' => ['Respondents.name']
+        ]);
+
+        $query = $this->LabelKind->DataTwitter->find('all', [
+            'conditions' => ['DataTwitter.classifying' => false],
+            'contain' => ['LabelKind']
+        ]);
+        if ($this->request->query('start') && $this->request->query('end'))
+        {
+            $start = new Date($this->request->query('start'));
+            //$start
+            $query->where(['DataTwitter.t_time' => ])
+            //$query->where(['LOWER(info) LIKE' => '%' . strtolower($this->request->query('search')) . '%']);
+        }
+        if ($this->request->query('sort'))
+        {
+            $query->order([
+                $this->request->query('sort') => $this->request->query('direction')
+            ]);
+        }
+        $this->paginate = ['limit' => $this->limit];
+
+        $this->set('breadcrumbs', $this->breadcrumbs);
+
+        $data = $this->paginate($query);
+        $this->set('title', 'Classifying');
+        $this->set('limit', $this->limit);
+        $this->set(compact(['data', 'respondents']));
+        //$this->set(compact('respondents'));
+        $this->set('_serialize', ['data', 'respondents']);
     }
 
     /**
@@ -125,4 +236,10 @@ class LabelKindController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
+
+    public function beforeRender(\Cake\Event\Event $event)
+    {
+        $this->viewBuilder()->theme('TwitterBootstrap');
+    }
+
 }

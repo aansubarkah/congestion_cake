@@ -270,15 +270,46 @@ echo $this->Html->link(
                                 <span class="fa arrow"> </span>
                             </a>
                             <ul class="nav nav-second-level">
+                        <li>
 <?php
-echo '<li>';
 echo $this->Html->link(
-    '<i class="fa fa-twitter fa-fw"></i> Twitter',
-    ['controller' => 'LabelTwitter', 'action' => 'index'],
+    '<i class="fa fa-blind fa-fw"></i> Classifying',
+    ['controller' => 'LabelKind',
+    'action' => 'index'],
     ['escape' => false]
 );
-echo '</li>';
 ?>
+                        </li>
+                        <li>
+<?php
+echo $this->Html->link(
+    '<i class="fa fa-etsy fa-fw"></i> Tagging',
+    ['controller' => 'LabelWord',
+    'action' => 'index'],
+    ['escape' => false]
+);
+?>
+                        </li>
+                        <li>
+<?php
+echo $this->Html->link(
+    '<i class="fa fa-paperclip fa-fw"></i> Chunking',
+    ['controller' => 'LabelChunk',
+    'action' => 'index'],
+    ['escape' => false]
+);
+?>
+                        </li>
+                        <li>
+<?php
+echo $this->Html->link(
+    '<i class="fa fa-map fa-fw"></i> Locating',
+    ['controller' => 'LabelSpot',
+    'action' => 'index'],
+    ['escape' => false]
+);
+?>
+                        </li>
                             </ul>
                         </li>
                         <li>
