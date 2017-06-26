@@ -110,17 +110,28 @@ class LabelKindController extends AppController
             'conditions' => ['Respondents.official' => true, 'Respondents.active' => true],
             'order' => ['Respondents.name']
         ]);
-
-        $query = $this->LabelKind->DataTwitter->find('all', [
-            'conditions' => ['DataTwitter.classifying' => false],
-            'contain' => ['LabelKind']
-        ]);
+        $query = $this->LabelKind->DataTwitter->find('all');
+        $query->where(['DataTwitter.classifying' => false]);
+        $query->contain(['LabelKind']);
+        $start = '';
+        $end = '';
+        $respondent_id = 0;
         if ($this->request->query('start') && $this->request->query('end'))
         {
             $start = new Date($this->request->query('start'));
-            //$start
-            $query->where(['DataTwitter.t_time' => ])
-            //$query->where(['LOWER(info) LIKE' => '%' . strtolower($this->request->query('search')) . '%']);
+            $startDisplay = $start;
+            $start->subDay(1);
+            $start = $start->format('Y-m-d');
+            $end = new Date($this->request->query('end'));
+            $endDisplay = $end;
+            $end->addDay(1);
+            $end = $end->format('Y-m-d');
+            $query->andWhere(['DataTwitter.t_time >' => $start]);
+            $query->andWhere(['DataTwitter.t_time <' => $end]);
+            $startDisplay->addDay(1);
+            $endDisplay->subDay(1);
+            $start = $startDisplay->format('d-m-Y');
+            $end = $endDisplay->format('d-m-Y');
         }
         if ($this->request->query('sort'))
         {
@@ -128,15 +139,19 @@ class LabelKindController extends AppController
                 $this->request->query('sort') => $this->request->query('direction')
             ]);
         }
+        if ($this->request->query('respondent') && $this->request->query('respondent') > 0)
+        {
+            $respondent_id = $this->request->query('respondent');
+            $query->andWhere(['respondent_id' => $respondent_id]);
+        }
         $this->paginate = ['limit' => $this->limit];
 
         $this->set('breadcrumbs', $this->breadcrumbs);
-
+        $count = $query->count();
         $data = $this->paginate($query);
         $this->set('title', 'Classifying');
         $this->set('limit', $this->limit);
-        $this->set(compact(['data', 'respondents']));
-        //$this->set(compact('respondents'));
+        $this->set(compact(['data', 'respondents', 'start', 'end', 'respondent_id', 'count']));
         $this->set('_serialize', ['data', 'respondents']);
     }
 

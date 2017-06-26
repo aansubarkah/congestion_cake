@@ -1,3 +1,6 @@
+<?php
+//print_r($start);
+?>
 <div class="panel panel-default">
     <div class="panel-heading">
 <?php
@@ -8,21 +11,24 @@ echo $this->Form->create(null, [
 ]);
 ?>
         <div class="form-group">
-            <input type="text" class="form-control datepicker" id="startDate" name="start" placeholder="Start">
+        <input type="text" class="form-control datepicker" id="startDate" name="start" placeholder="Start" value="<?php echo $start; ?>">
         </div>
         <div class="form-group">
-            <input type="text" class="form-control datepicker" id="endDate" name="end" placeholder="End">
+            <input type="text" class="form-control datepicker" id="endDate" name="end" placeholder="End" value="<?php echo $end; ?>">
         </div>
 <?php
 $options = [0 => 'All Respondents'];
 foreach ($respondents as $respondent)
 {
-    $options[$respondent->id] = $respondent->name;
+    if ($respondent->id != 11) $options[$respondent->id] = $respondent->name;
 }
 echo '<div class="form-group">';
-echo $this->Form->select('field', $options, ['class' => 'form-control', 'id' => 'respondent', 'name' => 'respondent']);
+echo $this->Form->select('field', $options, ['class' => 'form-control', 'id' => 'respondent', 'name' => 'respondent', 'value' => $respondent_id]);
 echo '</div>';
 ?>
+        <div class="form-group">
+            <input type="text" class="form-control" value="Contain <?php echo $count; ?> rows" disabled>
+        </div>
         <div class="form-group pull-right">
             <button type="submit" class="btn btn-default">Search</button>
         </div>
@@ -149,7 +155,10 @@ echo $this->Html->css(['bootstrap-datepicker3.min']);
             offLabel: 'Tidak Relevan',
             onLabel: 'Relevan'
         });
-
+        $('#btn-save').hide();
+        $(':checkbox').change(function(){
+            $('#btn-save').show();
+        });
         $('#btn-save').click(function(){
             var allYes = [];
             var allNo = [];
