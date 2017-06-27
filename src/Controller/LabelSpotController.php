@@ -2,6 +2,8 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Cake\I18n\Date;
 
 /**
  * LabelSpot Controller
@@ -12,6 +14,19 @@ use App\Controller\AppController;
  */
 class LabelSpotController extends AppController
 {
+    public $title = 'Spoting';
+    public $limit = 5;
+
+    //public $helpers = ['ElasticSearch.ClientBuilder'];
+
+    /*
+     * breadcrumbs variable, format like
+     * [['link 1', 'link title 1'], ['link 2', 'link title 2']]
+     *
+     * */
+    public $breadcrumbs = [
+        ['label-spot', 'Spoting']
+    ];
 
     /**
      * Index method
@@ -20,13 +35,104 @@ class LabelSpotController extends AppController
      */
     public function index()
     {
-        $this->paginate = [
-            'contain' => ['Raws', 'Respondents', 'Pieces', 'Spaces', 'Places', 'Regencies', 'Hierarchies', 'Categories', 'Weather']
-        ];
-        $labelSpot = $this->paginate($this->LabelSpot);
+        $allRaw = null;
+        $allPlace = null;
+        $allCondition = null;
+        $allWeather = null;
+        if ($this->request->is('post'))
+        {
+            $allRaw = explode(',', $this->request->getData('all_raw'));
+            $allPlace = explode(',', $this->request->getData('all_place'));
+            $allCondition = explode(',', $this->request->getData('all_condition'));
+            $allWeather = explode(',', $this->request->getData('all_weather'));
 
-        $this->set(compact('labelSpot'));
-        $this->set('_serialize', ['labelSpot']);
+            if (count($allRaw) == count($allPlace) && count($allRaw) == count($allCondition) && count($allRaw) == count($allWeather))
+            {
+                $data = [];
+                for ($i=0; $i<count($allRaw); $i++)
+                {
+                    array_push($data, [
+                        'raw_id' => $allRaw[$i],
+                        'user_id' => 1,
+                        'place' => $allPlace[$i],
+                        'condition' => $allCondition[$i],
+                        'weather' => $allWeather[$i],
+                        'trained' => false,
+                        'active' => true
+                    ]);
+
+                    // Update Raw
+                    $Raw = TableRegistry::get('Raws');
+                    $queryUpdateRaw = $Raw->query();
+                    $Comprador = TableRegistry::get('Chunks');
+                    $queryUpdateComprador = $Comprador->query();
+
+                    $queryUpdateRaw->update()
+                        ->set(['chunking' => true])
+                        ->where(['id' => $allRaw[$i]])
+                        ->execute();
+                    // Update Comprador
+                    $queryUpdateComprador->update()
+                        ->set(['verified' => true])
+                        ->where(['raw_id' => $allRaw[$i]])
+                        ->execute();
+
+                }
+                $pieces = TableRegistry::get('Pieces');
+                $entities = $pieces->newEntities($data);
+                $result = $pieces->saveMany($entities);
+            }
+        }
+
+        $query = $this->LabelSpot->DataTwitter->find('all');
+        $query->where(['DataTwitter.chunking' => true, 'DataTwitter.locating' => false, 'DataTwitter.mt_classification_id' => 1]);
+        $query->contain(['LabelSpot']);
+
+        $start = '';
+        $end = '';
+        $respondent_id = 0;
+        if ($this->request->query('start') && $this->request->query('end'))
+        {
+            $start = new Date($this->request->query('start'));
+            $startDisplay = $start;
+            $start->subDay(1);
+            $start = $start->format('Y-m-d');
+            $end = new Date($this->request->query('end'));
+            $endDisplay = $end;
+            $end->addDay(1);
+            $end = $end->format('Y-m-d');
+            $query->andWhere(['DataTwitter.t_time >' => $start]);
+            $query->andWhere(['DataTwitter.t_time <' => $end]);
+            $startDisplay->addDay(1);
+            $endDisplay->subDay(1);
+            $start = $startDisplay->format('d-m-Y');
+            $end = $endDisplay->format('d-m-Y');
+        }
+        if ($this->request->query('sort'))
+        {
+            $query->order([
+                $this->request->query('sort') => $this->request->query('direction')
+            ]);
+        }
+        if ($this->request->query('respondent') && $this->request->query('respondent') > 0)
+        {
+            $respondent_id = $this->request->query('respondent');
+            $query->andWhere(['respondent_id' => $respondent_id]);
+        }
+        $respondents = $this->LabelSpot->DataTwitter->Respondents->find('all', [
+            'conditions' => ['Respondents.official' => true, 'Respondents.active' => true, 'Respondents.id !=' => 11],
+            'order' => ['Respondents.name']
+        ]);
+
+        $this->paginate = ['limit' => $this->limit];
+        $this->set('breadcrumbs', $this->breadcrumbs);
+        $count = $query->count();
+
+        $data = $this->paginate($query);
+        $this->set('title', $this->title);
+        $this->set('limit', $this->limit);
+        $this->set(compact(['data','tags', 'respondents', 'start', 'end', 'respondent_id', 'count']));
+        $this->set('_serialize', ['data', 'tags', 'respondents']);
     }
 
     /**

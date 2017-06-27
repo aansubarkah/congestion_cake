@@ -1,6 +1,3 @@
-<?php
-//print_r($start);
-?>
 <div class="panel panel-default">
     <div class="panel-heading">
 <?php
