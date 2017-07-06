@@ -340,11 +340,19 @@ echo '</li>';
 <?php
 echo '<li>';
 echo $this->Html->link(
-    '<i class="fa fa-flag fa-fw"></i> Label',
+    '<i class="fa fa-etsy fa-fw"></i> Label',
     ['controller' => 'Tags', 'action' => 'index'],
     ['escape' => false]
 );
 echo '</li>';
+echo '<li>';
+echo $this->Html->link(
+    '<i class="fa fa-map fa-fw"></i> Location',
+    ['controller' => 'Places', 'action' => 'index'],
+    ['escape' => false]
+);
+echo '</li>';
+
 ?>
                             </ul>
 

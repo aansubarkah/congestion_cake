@@ -4,6 +4,7 @@ namespace App\Controller;
 use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
 use Cake\I18n\Date;
+use Cake\Datasource\ConnectionManager;
 
 /**
  * LabelSpot Controller
@@ -35,7 +36,7 @@ class LabelSpotController extends AppController
      */
     public function index()
     {
-        $allRaw = null;
+        /*$allRaw = null;
         $allPlace = null;
         $allCondition = null;
         $allWeather = null;
@@ -82,7 +83,7 @@ class LabelSpotController extends AppController
                 $entities = $pieces->newEntities($data);
                 $result = $pieces->saveMany($entities);
             }
-        }
+        }*/
 
         $query = $this->LabelSpot->DataTwitter->find('all');
         $query->where(['DataTwitter.chunking' => true, 'DataTwitter.locating' => false, 'DataTwitter.mt_classification_id' => 1]);
@@ -124,6 +125,17 @@ class LabelSpotController extends AppController
             'order' => ['Respondents.name']
         ]);
 
+        $Categories = TableRegistry::get('Categories');
+        $categories = $Categories->find('all', [
+            'conditions' => ['Categories.active' => true],
+            'order' => ['Categories.name']
+        ]);
+        $Weather = TableRegistry::get('Weather');
+        $weather = $Weather->find('all', [
+            'conditions' => ['Weather.active' => true],
+            'order' => ['Weather.name']
+        ]);
+
         $this->paginate = ['limit' => $this->limit];
         $this->set('breadcrumbs', $this->breadcrumbs);
         $count = $query->count();
@@ -131,8 +143,38 @@ class LabelSpotController extends AppController
         $data = $this->paginate($query);
         $this->set('title', $this->title);
         $this->set('limit', $this->limit);
-        $this->set(compact(['data','tags', 'respondents', 'start', 'end', 'respondent_id', 'count']));
+        $this->set(compact(['data','tags', 'respondents', 'start', 'end', 'respondent_id', 'count', 'categories', 'weather']));
         $this->set('_serialize', ['data', 'tags', 'respondents']);
+    }
+
+    public function addPlace($name, $lat, $lng)
+    {
+        $this->autoRender = false;
+        if (!empty($name) && !empty($lat) && !empty($lng))
+        {
+            //find closest regency
+            $connection = ConnectionManager::get('default');
+            $results = $connection->execute("SELECT regency_id FROM districts ORDER BY geom <-> ST_SetSRID(st_makepoint($lng, $lat), 4326)")->fetch('assoc');
+            $regency_id = $results['regency_id'];
+            $Place = TableRegistry::get('Places');
+            $data = [
+                'regency_id' => $regency_id,
+                'name' => $name,
+                'lat' => $lat,
+                'lng' => $lng,
+                'active' => true
+            ];
+            $entities = $Place->newEntities($data);
+            if ($Place->save($entities))
+            {
+                // Insert spaces table with predefined place_id
+                shell_exec('cd /home/aan/congestion && python3 /home/aan/congestion/LabelChunk.py ' . $entities->id);
+
+                return $entities->id;
+            } else {
+                return 0;
+            }
+        }
     }
 
     /**
@@ -144,12 +186,56 @@ class LabelSpotController extends AppController
      */
     public function view($id = null)
     {
-        $labelSpot = $this->LabelSpot->get($id, [
-            'contain' => ['Raws', 'Respondents', 'Pieces', 'Spaces', 'Places', 'Regencies', 'Hierarchies', 'Categories', 'Weather']
+        if ($this->request->is('post'))
+        {
+            $piece_id = $this->request->getData('piece_id');
+            $space_id = $this->request->getData('space_id');
+            $user_id = 3;
+            $place_name = $this->request->getData('place_name');
+            $place_id = $this->request->getData('place_id');
+            $place_lat = $this->request->getData('place_lat');
+            $place_lng = $this->request->getData('place_lng');
+            $category_id = $this->request->getData('category_id');
+            $weather_id = $this->request->getData('weather_id');
+
+            if ($place_id == 0)
+            {
+                $place_id = $this->addPlace($place_name, $place_lat, $place_lng);
+            }
+            $Space = TableRegistry::get('Spaces');
+            $queryUpdate = $Space->query();
+            $queryUpdate->update()
+                ->set(['user_id' => 1, 'place_id' => $place_id, 'category_id' => $category_id, 'weather_id' => $weather_id, 'verified' => true])
+                ->where(['id' => $space_id])
+                ->execute();
+            return $this->redirect(['controller' => 'LabelSpot', 'action' => 'index']);
+        }
+
+        $query = $this->LabelSpot->find();
+        $query->where(['LabelSpot.piece_id' => $id]);
+        $piece = $query->first();
+        $query = $this->LabelSpot->DataTwitter->find();
+        $query->where(['DataTwitter.chunking' => true, 'DataTwitter.locating' => false, 'DataTwitter.mt_classification_id' => 1, 'DataTwitter.raw_id' => $piece->raw_id]);
+        $query->contain(['LabelSpot']);
+
+        $Categories = TableRegistry::get('Categories');
+        $categories = $Categories->find('all', [
+            'conditions' => ['Categories.active' => true],
+            'order' => ['Categories.name']
+        ]);
+        $Weather = TableRegistry::get('Weather');
+        $weather = $Weather->find('all', [
+            'conditions' => ['Weather.active' => true],
+            'order' => ['Weather.name']
         ]);
 
-        $this->set('labelSpot', $labelSpot);
-        $this->set('_serialize', ['labelSpot']);
+        $this->set('breadcrumbs', $this->breadcrumbs);
+        $count = $query->count();
+        $data = $query->first();
+        $this->set('title', $this->title);
+        $this->set('limit', $this->limit);
+        $this->set(compact(['data', 'categories', 'weather', 'piece']));
+        $this->set('_serialize', ['data', 'piece']);
     }
 
     /**
@@ -229,10 +315,10 @@ class LabelSpotController extends AppController
         $labelSpot = $this->LabelSpot->get($id);
         if ($this->LabelSpot->delete($labelSpot)) {
             $this->Flash->success(__('The label spot has been deleted.'));
-        } else {
-            $this->Flash->error(__('The label spot could not be deleted. Please, try again.'));
-        }
-
-        return $this->redirect(['action' => 'index']);
+    } else {
+        $this->Flash->error(__('The label spot could not be deleted. Please, try again.'));
     }
-}
+
+    return $this->redirect(['action' => 'index']);
+    }
+    }

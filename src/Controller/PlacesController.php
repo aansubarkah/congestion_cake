@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
 
 /**
  * Places Controller
@@ -12,6 +13,17 @@ use App\Controller\AppController;
  */
 class PlacesController extends AppController
 {
+    public $title = 'Location';
+    public $limit = 10;
+
+    /*
+     * breadcrumbs variable, format like
+     * [['link 1', 'link title 1'], ['link 2', 'link title 2']]
+     *
+     * */
+    public $breadcrumbs = [
+        ['places', 'Location']
+    ];
 
     /**
      * Index method
@@ -20,13 +32,37 @@ class PlacesController extends AppController
      */
     public function index()
     {
-        $this->paginate = [
+        $Spot = TableRegistry::get('SuggestionSpot');
+        $query = $Spot->find('all');
+        if ($this->request->query('search'))
+        {
+            $query->where(['LOWER(place_fullname) LIKE' => '%' . strtolower($this->request->query('search')) . '%']);
+        }
+        if ($this->request->query('sort'))
+        {
+            $query->order([
+                $this->request->query('sort') => $this->request->query('direction')
+            ]);
+        } else {
+            $query->order(['place_fullname ASC']);
+        }
+        $this->paginate = ['limit' => $this->limit];
+
+        $this->set('breadcrumbs', $this->breadcrumbs);
+
+        $data = $this->paginate($query);
+        $this->set('title', $this->title);
+        $this->set('limit', $this->limit);
+        $this->set(compact('data'));
+        $this->set('_serialize', ['data']);
+
+        /*$this->paginate = [
             'contain' => ['Regencies']
         ];
         $places = $this->paginate($this->Places);
 
         $this->set(compact('places'));
-        $this->set('_serialize', ['places']);
+        $this->set('_serialize', ['places']);*/
     }
 
     /**

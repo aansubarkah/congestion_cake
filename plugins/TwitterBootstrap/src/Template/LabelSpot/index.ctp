@@ -87,21 +87,19 @@ foreach($data as $datum)
     {
         foreach ($datum->label_spot as $value)
         {
-            echo '<span class="label label-default">';
-            echo '<i class="fa fa-map-marker fa-fw">';
-            echo '</i> ';
-            echo $value->place;
-            echo '</span> ';
-            echo '<span class="label label-default">';
-            echo '<i class="fa fa-bullhorn fa-fw">';
-            echo '</i>';
-            echo $value->condition;
-            echo '</span> ';
-            echo '<span class="label label-default">';
-            echo '<i class="fa fa-cloud fa-fw">';
-            echo '</i> ';
-            echo $value->weather;
-            echo '</span> ';
+            $label = '<span class="label label-default">';
+            $label = $label . '<i class="fa fa-map-marker fa-fw"></i>';
+            $label = $label . $value->place;
+            $label = $label . ' <i class="fa fa-bullhorn fa-fw"></i>';
+            $label = $label . $value->condition;
+            $label = $label . ' <i class="fa fa-cloud fa-fw"></i>';
+            $label = $label . $value->weather;
+            $label = $label . '</span> ';
+            echo $this->Html->link(
+                $label,
+                ['controller' => 'LabelSpot', 'action' => 'view', $value->piece_id],
+                ['escape' => false]
+            );
         }
     }
     echo '<br><br>';
@@ -109,19 +107,21 @@ foreach($data as $datum)
     {
         foreach ($datum->label_spot as $value)
         {
-            echo '<span class="label label-success">';
+            echo '<span class="label label-success" id="space-' . $value->space_id . '">';
+
             echo '<i class="fa fa-map-marker fa-fw">';
             echo '</i> ';
-            echo $value->place_name;
-            echo '</span> ';
-            echo '<span class="label label-success">';
-            echo '<i class="fa fa-institution fa-fw">';
-            echo '</i> ';
-            echo $value->hierarchy_name;
-            echo ' ';
-            echo $value->regency_name;
-            echo '</span> ';
-
+            if ($value->place_name == null)
+            {
+                echo 'Tempat Tidak Ditemukan ';
+            } else {
+                echo $value->place_name;
+                echo ' <i class="fa fa-institution fa-fw">';
+                echo '</i> ';
+                echo $value->hierarchy_name;
+                echo ' ';
+                echo $value->regency_name;
+            }
             // Macet Kecelakaan
             if ($value->category_id == 1 || $value->category_id == 4) {
                 echo '<span class="label label-danger">';
@@ -139,8 +139,8 @@ foreach($data as $datum)
             echo '</i>';
             echo $value->category_name;
             echo '</span> ';
-            echo '<span class="label label-success">';
-            echo '<i class="fa fa-cloud fa-fw">';
+            //echo '<span class="label label-success">';
+            echo ' <i class="fa fa-cloud fa-fw">';
             echo '</i> ';
             echo $value->weather_name;
             echo '</span> ';
@@ -203,28 +203,56 @@ echo $this->Form->hidden('all_weather', [
 
 ?>
 <!-- Modal -->
-<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalChunk">
-  <div class="modal-dialog" role="document">
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="addModalChunk">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="addModalChunk">Tambah Tempat Kondisi dan Lokasi</h4>
+        <h4 class="modal-title" id="addModalChunk">Tambah/Ubah Tempat Kondisi dan Lokasi</h4>
       </div>
       <div class="modal-body">
         <form>
             <div class="form-group">
-                <textarea class="form-control" rows="3" id="addChunkInfo" disabled></textarea>
+                <p id="addPlaceInfo"></p>
+                <!--<textarea class="form-control" rows="3" id="addPlaceInfo" disabled></textarea>-->
             </div>
             <div class="form-group">
-                <input type="hidden" id="addChunkRawId">
-                <input type="hidden" id="addChunkTempId">
-                <input type="text" class="form-control" id="addPlaceName" placeholder="Tempat">
+                <input type="hidden" id="addPlaceSpaceId">
+                <input type="hidden" id="addPlaceTempId">
+                <input type="hidden" id="addPlaceId">
+<div id="typeahead">
+<?php
+echo $this->Form->text('place', [
+    'label' => false,
+    'class' => 'form-control typeahead',
+    'placeholder' => 'Tempat',
+    'autocomplete' => 'off',
+    'required',
+    'id' => 'addPlace',
+]);
+?>
+</div>
+                <!--<input type="text" class="form-control" id="addPlaceName" placeholder="Tempat">-->
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" id="addConditionName" placeholder="Kondisi">
+<?php
+$options = [];
+foreach ($categories as $value)
+{
+    $options[$value['id']] = $value['name'];
+}
+echo $this->Form->select('field', $options, ['class' => 'form-control', 'id' => 'addPlaceCategory']);
+?>
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" id="addWeatherName" placeholder="Cuaca" value="cerah">
+<?php
+$options = [];
+foreach ($weather as $value)
+{
+    $options[$value['id']] = $value['name'];
+}
+echo $this->Form->select('field', $options, ['class' => 'form-control', 'id' => 'addPlaceWeather']);
+?>
             </div>
         </form>
       </div>
@@ -236,7 +264,7 @@ echo $this->Form->hidden('all_weather', [
   </div>
 </div><!--/.Modal-->
 <?php
-echo $this->Html->script(['bootstrap-datepicker.min', 'bootstrap-datepicker.id.min']);
+echo $this->Html->script(['bootstrap-datepicker.min', 'bootstrap-datepicker.id.min', 'bloodhound.min', 'bootstrap3-typeahead.min']);
 echo $this->Html->css(['bootstrap-datepicker3.min']);
 ?>
 
@@ -274,15 +302,54 @@ echo $this->Html->css(['bootstrap-datepicker3.min']);
             }
         }
 
-        $('.add-chunk').click(function(){
-            $('#addChunkInfo').val($(this).attr('info'));
-            $('#addChunkRawId').val($(this).attr('raw-id'));
+        $('.edit-place').click(function(){
+            var info = $(this).attr('info');
+            info = info + '<br>';
+            info = info + '<span class="label label-default">';
+            info = info + '<i class="fa fa-map-marker fa-fw"></i> ';
+            info = info + $(this).attr('pre-place');
+            info = info + '</span> ';
+            info = info + '<span class="label label-default">';
+            info = info + '<i class="fa fa-bullhorn fa-fw"></i> ';
+            info = info + $(this).attr('pre-condition');
+            info = info + '</span> ';
+            info = info + '<span class="label label-default">';
+            info = info + '<i class="fa fa-cloud fa-fw"></i> ';
+            info = info + $(this).attr('pre-weather');
+            info = info + '</span> ';
+
+            //$('#addPlaceInfo').val($(this).attr('info'));
+            $('#addPlaceInfo').html(info);
+            $('#addPlaceSpaceId').val($(this).attr('space-id'));
+            $('select#addPlaceCategory').val($(this).attr('category-id'));
+            $('select#addPlaceWeather').val($(this).attr('weather-id'));
+            console.log($(this).attr('category-id'));
             $('#addPlaceName').val('');
             $('#addConditionName').val('');
             $('#addWeatherName').val('cerah');
             // generate random id
             var generator = new IDGenerator()
             $('#addChunkTempId').val(generator.generate());
+        });
+
+        /*var placeSource = [
+            {id: 1, name: 'waru'},
+            {id: 2, name: 'bundaran waru'}
+        ];*/
+        var placeSource = ['waru', 'bundaran waru'];
+        var engine = new Bloodhound({
+            local: placeSource,
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            datumTokenizer: Bloodhound.tokenizers.whitespace
+        });
+        $('#typeahead .typeahead').typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 2
+        },
+        {
+            source: engine,
+            limit: 5
         });
 
         $('#addChunkSave').click(function(){
