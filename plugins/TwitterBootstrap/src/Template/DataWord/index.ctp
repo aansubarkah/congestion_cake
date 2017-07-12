@@ -2,17 +2,32 @@
     <div class="panel-heading">
 <?php
 echo $this->Form->create(null, [
-    'url' => ['controller' => 'DataTwitter', 'action' => 'index'],
-    'type' => 'get'
+    'url' => ['controller' => 'DataWord', 'action' => 'index'],
+    'type' => 'get',
+    'class' => 'form-inline'
 ]);
 ?>
-        <div class="input-group custom-search-form">
-            <input name="search" class="form-control" placeholder="Pencarian Info..." type="text" autocomplete="off">
-            <span class="input-group-btn">
-                <button class="btn btn-default" type="submit">
-                    <i class="fa fa-search"></i>
-                </button>
-            </span>
+        <div class="form-group">
+        <input type="text" class="form-control datepicker" id="startDate" name="start" placeholder="Start" value="<?php echo $start; ?>">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control datepicker" id="endDate" name="end" placeholder="End" value="<?php echo $end; ?>">
+        </div>
+<?php
+$options = [0 => 'All Respondents'];
+foreach ($respondents as $respondent)
+{
+    if ($respondent->id != 11) $options[$respondent->id] = $respondent->name;
+}
+echo '<div class="form-group">';
+echo $this->Form->select('field', $options, ['class' => 'form-control', 'id' => 'respondent', 'name' => 'respondent', 'value' => $respondent_id]);
+echo '</div>';
+?>
+        <div class="form-group">
+            <input type="text" class="form-control" value="Contain <?php echo $count; ?> rows" disabled>
+        </div>
+        <div class="form-group pull-right">
+            <button type="submit" class="btn btn-default">Search</button>
         </div>
         <!-- /.custom-search-form -->
 <?php
@@ -56,10 +71,12 @@ foreach($data as $datum)
                     <td>
                         <script>
                             moment.locale('id');
-                            letterDate = moment('<?php echo $this->Time->format($datum->raw->t_time, 'yyyy-MM-dd HH:mm:ss'); ?>').format('D MMMM YYYY HH:mm:ss');
+                            letterDate = moment('<?php echo $this->Time->format($datum->t_time, 'yyyy-MM-dd HH:mm:ss'); ?>').format('D MMMM YYYY HH:mm:ss');
                             document.write(letterDate);
                         </script><br>
 <?php
+echo $this->Html->link($datum->respondent_name, ['controller' => 'Respondents', 'action' => 'view', $datum->respondent_id]);
+echo '<br>';
 echo $this->Html->link(
     '<i class="fa fa-quora fa-fw"></i>',
     '#',
@@ -74,11 +91,11 @@ echo $this->Html->link(
                     </td>
                     <td>
 <?php
-    echo $datum->raw->info;
-    if (!empty($datum->raw->data_word))
+    echo $datum->info;
+    if (!empty($datum->data_word))
     {
         echo '<br>';
-        foreach ($datum->raw->data_word as $value)
+        foreach ($datum->data_word as $value)
         {
             echo '<span class="label label-default">';
             echo $value['word_name'];
@@ -88,7 +105,7 @@ echo $this->Html->link(
             echo ' ';
         }
     }
-    if (!empty($datum->raw->data_syllable))
+    /*if (!empty($datum->raw->data_syllable))
     {
         echo '<br><br>';
         if (!$datum->raw->data_syllable[0]['verified'])
@@ -118,7 +135,7 @@ echo $this->Html->link(
             );
             echo ' ';
         }
-    }
+    }*/
 ?>
                     </td>
                 </tr>
@@ -128,11 +145,11 @@ echo $this->Html->link(
             </tbody>
         </table>
     </div>
-    <div class="row pull-right">
+    <!--<div class="row pull-right">
         <div class="col-md-10 col-md-offset-2">
             <button id="btn-save" type="button" class="btn btn-primary">Simpan</button>
         </div>
-    </div>
+    </div>-->
     <!-- /.row -->
     <div class="row"></div>
     <div class="row pull-right">
@@ -258,8 +275,21 @@ echo $this->Form->select('field', $options, ['class' => 'form-control', 'id' => 
     </div>
   </div>
 </div><!--/.Modal-->
+<?php
+echo $this->Html->script(['bootstrap-datepicker.min', 'bootstrap-datepicker.id.min']);
+echo $this->Html->css(['bootstrap-datepicker3.min']);
+?>
+
 <script type="text/javascript">
     $(function(){
+        $('.datepicker').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: true,
+            language: 'id',
+            startDate: 0,
+            todayHighlight: true
+        });
+
         var syllables = {};
 <?php
 echo 'var tags = {';

@@ -96,7 +96,7 @@ class LabelSpotController extends AppController
         {
             $start = new Date($this->request->query('start'));
             $startDisplay = $start;
-            $start->subDay(1);
+            //$start->subDay(1);
             $start = $start->format('Y-m-d');
             $end = new Date($this->request->query('end'));
             $endDisplay = $end;
@@ -104,7 +104,7 @@ class LabelSpotController extends AppController
             $end = $end->format('Y-m-d');
             $query->andWhere(['DataTwitter.t_time >' => $start]);
             $query->andWhere(['DataTwitter.t_time <' => $end]);
-            $startDisplay->addDay(1);
+            //$startDisplay->addDay(1);
             $endDisplay->subDay(1);
             $start = $startDisplay->format('d-m-Y');
             $end = $endDisplay->format('d-m-Y');
@@ -121,9 +121,22 @@ class LabelSpotController extends AppController
             $query->andWhere(['respondent_id' => $respondent_id]);
         }
         $respondents = $this->LabelSpot->DataTwitter->Respondents->find('all', [
-            'conditions' => ['Respondents.official' => true, 'Respondents.active' => true, 'Respondents.id !=' => 11],
+            'conditions' => [
+                'Respondents.official' => true,
+                'Respondents.t_user_id IS NOT' => null,
+                'Respondents.id !=' => 11,
+                'OR' => [
+                    'Respondents.active' => true,
+                    //'Respondents.tmc' => true
+                ]
+            ],
             'order' => ['Respondents.name']
         ]);
+
+        /*$respondents = $this->LabelSpot->DataTwitter->Respondents->find('all', [
+            'conditions' => ['Respondents.official' => true, 'Respondents.t_user_id IS NOT' => null, 'Respondents.id !=' => 11],
+            'order' => ['Respondents.name']
+        ]);*/
 
         $Categories = TableRegistry::get('Categories');
         $categories = $Categories->find('all', [
@@ -186,6 +199,10 @@ class LabelSpotController extends AppController
      */
     public function view($id = null)
     {
+        $query = $this->LabelSpot->find();
+        $query->where(['LabelSpot.piece_id' => $id]);
+        $piece = $query->first();
+
         if ($this->request->is('post'))
         {
             $piece_id = $this->request->getData('piece_id');
@@ -208,15 +225,15 @@ class LabelSpotController extends AppController
                 ->set(['user_id' => 1, 'place_id' => $place_id, 'category_id' => $category_id, 'weather_id' => $weather_id, 'verified' => true])
                 ->where(['id' => $space_id])
                 ->execute();
+            $Raw = TableRegistry::get('Raws');
+            $queryUpdate = $Raw->query();
+            $queryUpdate->update()
+                ->set(['locating' => true])
+                ->where(['id' => $piece->raw_id])
+                ->execute();
+
             return $this->redirect(['controller' => 'LabelSpot', 'action' => 'index']);
         }
-
-        $query = $this->LabelSpot->find();
-        $query->where(['LabelSpot.piece_id' => $id]);
-        $piece = $query->first();
-        $query = $this->LabelSpot->DataTwitter->find();
-        $query->where(['DataTwitter.chunking' => true, 'DataTwitter.locating' => false, 'DataTwitter.mt_classification_id' => 1, 'DataTwitter.raw_id' => $piece->raw_id]);
-        $query->contain(['LabelSpot']);
 
         $Categories = TableRegistry::get('Categories');
         $categories = $Categories->find('all', [
@@ -231,11 +248,10 @@ class LabelSpotController extends AppController
 
         $this->set('breadcrumbs', $this->breadcrumbs);
         $count = $query->count();
-        $data = $query->first();
         $this->set('title', $this->title);
         $this->set('limit', $this->limit);
-        $this->set(compact(['data', 'categories', 'weather', 'piece']));
-        $this->set('_serialize', ['data', 'piece']);
+        $this->set(compact(['categories', 'weather', 'piece']));
+        $this->set('_serialize', ['piece']);
     }
 
     /**

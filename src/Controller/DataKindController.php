@@ -2,6 +2,8 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Cake\I18n\Date;
 
 /**
  * DataKind Controller
@@ -13,7 +15,7 @@ use App\Controller\AppController;
 class DataKindController extends AppController
 {
     public $title = 'Classifying';
-    public $limit = 5;
+    public $limit = 200;
 
     /*
      * breadcrumbs variable, format like
@@ -74,11 +76,70 @@ class DataKindController extends AppController
             }
         }
 
-        $query = $this->DataKind->find('all', [
+        $respondents = $this->DataKind->DataTwitter->Respondents->find('all', [
+            'conditions' => [
+                'Respondents.official' => true,
+                'Respondents.t_user_id IS NOT' => null,
+                'Respondents.id !=' => 11,
+                'OR' => [
+                    'Respondents.active' => true,
+                    //'Respondents.tmc' => true
+                ]
+            ],
+            'order' => ['Respondents.name']
         ]);
+        $query = $this->DataKind->DataTwitter->find('all');
+        $query->where(['DataTwitter.kind_id IS NOT' => null]);
+        $query->contain(['DataKind']);
+        $start = '';
+        $end = '';
+        $respondent_id = 0;
+        if ($this->request->query('start') && $this->request->query('end'))
+        {
+            $start = new Date($this->request->query('start'));
+            $startDisplay = $start;
+            //$start->subDay(1);
+            $start = $start->format('Y-m-d');
+            $end = new Date($this->request->query('end'));
+            $endDisplay = $end;
+            $end->addDay(1);
+            $end = $end->format('Y-m-d');
+            $query->andWhere(['DataTwitter.t_time >' => $start]);
+            $query->andWhere(['DataTwitter.t_time <' => $end]);
+            //$startDisplay->addDay(1);
+            $endDisplay->subDay(1);
+            $start = $startDisplay->format('d-m-Y');
+            $end = $endDisplay->format('d-m-Y');
+        }
+        if ($this->request->query('sort'))
+        {
+            $query->order([
+                $this->request->query('sort') => $this->request->query('direction')
+            ]);
+        }
+        if ($this->request->query('respondent') && $this->request->query('respondent') > 0)
+        {
+            $respondent_id = $this->request->query('respondent');
+            $query->andWhere(['respondent_id' => $respondent_id]);
+        }
+        $this->paginate = ['limit' => $this->limit];
+
+        $this->set('breadcrumbs', $this->breadcrumbs);
+        $count = $query->count();
+        $data = $this->paginate($query);
+        $this->set('title', 'Classifying');
+        $this->set('limit', $this->limit);
+        $this->set(compact(['data', 'respondents', 'start', 'end', 'respondent_id', 'count']));
+        $this->set('_serialize', ['data', 'respondents']);
+
+        /*$query = $this->DataKind->find('all');
+        /*$query->where(function($exp, $q) {
+            return $exp->between('t_time', '2017-07-10 00:00:00', '2017-07-10 23:59:00');
+        });*
+        //$query->where(['DataKind.t_time BETWEEN' => '2017-07-10 00:00:00 AND 2017-07-10 23:59:00']);
         if ($this->request->query('search'))
         {
-            $query->where(['LOWER(info) LIKE' => '%' . strtolower($this->request->query('search')) . '%']);
+            $query->andWhere(['LOWER(info) LIKE' => '%' . strtolower($this->request->query('search')) . '%']);
         }
         if ($this->request->query('sort'))
         {
@@ -94,7 +155,7 @@ class DataKindController extends AppController
         $this->set('title', 'Classifying');
         $this->set('limit', $this->limit);
         $this->set(compact('data'));
-        $this->set('_serialize', ['data']);
+        $this->set('_serialize', ['data']);*/
     }
 
     /**

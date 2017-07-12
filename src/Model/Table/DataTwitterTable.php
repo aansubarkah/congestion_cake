@@ -19,10 +19,14 @@ use Cake\Validation\Validator;
  * @property \Cake\ORM\Association\HasMany $DataChunk
  * @property \Cake\ORM\Association\HasMany $DataPiece
  * @property \Cake\ORM\Association\HasMany $DataSpot
+ * @property \Cake\ORM\Association\HasMany $DataKind
+ * @property \Cake\ORM\Association\HasMany $DataWord
  * @property \Cake\ORM\Association\HasMany $LabelKind
  * @property \Cake\ORM\Association\HasMany $LabelWord
  * @property \Cake\ORM\Association\HasMany $LabelChunk
  * @property \Cake\ORM\Association\HasMany $LabelSpot
+ * @property \Cake\ORM\Association\HasMany $TrainKind
+ * @property \Cake\ORM\Association\HasMany $TrainWord
  *
  * @method \App\Model\Entity\DataTwitter get($primaryKey, $options = [])
  * @method \App\Model\Entity\DataTwitter newEntity($data = null, array $options = [])
@@ -72,6 +76,12 @@ class DataTwitterTable extends Table
         $this->hasMany('DataChunk', [
             'foreignKey' => 'raw_id'
         ]);
+        $this->hasMany('DataWord', [
+            'foreignKey' => 'raw_id'
+        ]);
+        $this->hasMany('DataKind', [
+            'foreignKey' => 'raw_id'
+        ]);
         $this->hasMany('DataPiece', [
             'foreignKey' => 'raw_id'
         ]);
@@ -88,6 +98,12 @@ class DataTwitterTable extends Table
             'foreignKey' => 'raw_id'
         ]);
         $this->hasMany('LabelSpot', [
+            'foreignKey' => 'raw_id'
+        ]);
+        $this->hasMany('TrainKind', [
+            'foreignKey' => 'raw_id'
+        ]);
+        $this->hasMany('TrainWord', [
             'foreignKey' => 'raw_id'
         ]);
 

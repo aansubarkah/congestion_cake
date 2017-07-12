@@ -111,11 +111,14 @@ echo $this->Html->link(
                 'syllable-name' => $value['syllable_name'],
                 'syllable-id' => $value['syllable_id'],
                 'tag-id' => $value['tag_id'],
+                'raw-id' => $datum->raw_id,
             ]
         );
         echo ' ';
     }
-?>
+    echo '<br><br>';
+    ?>
+                        <input class="relevant" sequence="<?php echo $datum->raw_id; ?>" type="checkbox" data-group-cls="btn-group-sm" data-switch-always id="checkbox-<?php echo $datum->raw_id;?>">
                     </td>
                 </tr>
 <?php
@@ -161,6 +164,10 @@ echo $this->Form->hidden('new_syllable_ids', [
 
 echo $this->Form->hidden('new_tag_ids', [
     'id' => 'new_tag_ids'
+]);
+
+echo $this->Form->hidden('all_oks', [
+    'id' => 'all_oks_ids'
 ]);
 
 echo $this->Form->end();
@@ -230,6 +237,7 @@ foreach($tags as $datum)
       <div class="modal-body">
         <form>
             <div class="form-group">
+                <input type="hidden" id="editSyllableRawId">
                 <input type="hidden" id="editSyllableId">
                 <input type="text" class="form-control" id="editSyllableName" placeholder="Kata" disabled>
             </div>
@@ -248,6 +256,12 @@ echo $this->Form->select('field', $options, ['class' => 'form-control', 'id' => 
             </div>
         </form>
       </div>
+<?php
+foreach ($tags as $value)
+{
+    echo '<input id="example-' . $value['id'] . '" value="' . $value['description'] . ' contoh: ' . $value['example'] . '" hidden="true">';
+}
+?>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
         <button type="button" class="btn btn-primary" id="editSyllableSave">Simpan</button>
@@ -270,29 +284,17 @@ echo $this->Html->css(['bootstrap-datepicker3.min']);
         });
 
         var syllables = {};
-<?php
-echo 'var tags = {';
-foreach ($tags as $value)
-{
-    echo $value['id'];
-    echo ":";
-    //echo "'" . $value['example'] . "'";
-    echo "'" . $value['description'] . "'";
-    echo ",";
-}
-echo '};';
-?>
         $('#btn-save').hide();
 
         $('.edit-syllable').click(function(){
             $('#editSyllableId').val($(this).attr('syllable-id'));
             $('#editSyllableName').val($(this).attr('syllable-name'));
             $('#editSyllableTag').val($(this).attr('tag-id'));
+            $('#editSyllableRawId').val($(this).attr('raw-id'));
         });
 
         $('#editSyllableTag').change(function(){
-            $('#editSyllableDescription').val(tags[$(this).val()]);
-            //console.log(tags[$(this).val()]);
+            $('#editSyllableDescription').val($('#example-' + $(this).val()).val());
         });
 
         $('#editSyllableSave').click(function(){
@@ -300,23 +302,46 @@ echo '};';
             var syllableId = $('#editSyllableId').val();
             var syllableTagNameNew = $('#editSyllableTag option[value="' + $('#editSyllableTag').val() + '"]').text();
             var syllableTagIdNew = $('#editSyllableTag').val();
+            var syllableRawId = $('#editSyllableRawId').val();
             syllables[syllableId] = syllableTagIdNew;
             $('.i-' + $('#editSyllableId').val()).html(syllableTagNameNew);
             $('.edit-syllable[syllable-id="' + syllableId + '"]').attr('tag-id', syllableTagIdNew);
             // change label color
             $('.edit-syllable[syllable-id="' + syllableId + '"] > span').removeClass('label-success');
             $('.edit-syllable[syllable-id="' + syllableId + '"] > span').addClass('label-primary');
+            // edit checkbox to Not Checked
+            $('.table :checked').each(function(){
+                if ($(this).attr('sequence') == syllableRawId){
+                    $(this).prop('checked', false);
+                }
+            });
+            $('#checkbox-' + syllableRawId).prop('disabled', true);
 
             $('#editModal').modal('hide');
         });
 
+        $(':checkbox').checkboxpicker({
+            offLabel: 'Tidak Semua Label Sesuai',
+            onLabel: 'Semua Label Sesuai'
+        });
+
+        $(':checkbox').change(function(){
+            $('#btn-save').show();
+        });
+
         $('#btn-save').click(function(){
-            if (Object.keys(syllables).length > 0)
+            var allYes = [];
+            $('.table :checked').each(function(){
+                allYes.push($(this).attr('sequence'));
+            });
+
+            if (Object.keys(syllables).length > 0 || allYes.length > 0)
             {
                 var allSyllableIds = Object.keys(syllables);
                 var allTagIds = Object.values(syllables);
                 $('#new_syllable_ids').val(allSyllableIds.join());
                 $('#new_tag_ids').val(allTagIds.join());
+                $('#all_oks_ids').val(allYes.join());
                 $('#syllable').submit();
             }
         });

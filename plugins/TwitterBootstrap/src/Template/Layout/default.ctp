@@ -322,8 +322,16 @@ echo $this->Html->link(
 <?php
 echo '<li>';
 echo $this->Html->link(
-    '<i class="fa fa-twitter fa-fw"></i> Twitter',
-    ['controller' => 'TrainTwitter', 'action' => 'index'],
+    '<i class="fa fa-blind fa-fw"></i> Classifying',
+    ['controller' => 'TrainKind', 'action' => 'index'],
+    ['escape' => false]
+);
+echo '</li>';
+echo '<li>';
+
+echo $this->Html->link(
+    '<i class="fa fa-etsy fa-fw"></i> Tagging',
+    ['controller' => 'TrainWord', 'action' => 'index'],
     ['escape' => false]
 );
 echo '</li>';

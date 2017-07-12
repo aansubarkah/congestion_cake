@@ -15,7 +15,7 @@ use Cake\I18n\Date;
 class LabelChunkController extends AppController
 {
     public $title = 'Chunking';
-    public $limit = 5;
+    public $limit = 10;
 
     //public $helpers = ['ElasticSearch.ClientBuilder'];
 
@@ -85,6 +85,8 @@ class LabelChunkController extends AppController
                 // Insert spaces table with predefined place_id
                 shell_exec('cd /home/aan/congestion && python3 /home/aan/congestion/LabelChunk.py');
             }
+            // redirect to uri
+            return $this->redirect($this->referer());
         }
 
         $query = $this->LabelChunk->DataTwitter->find('all');
@@ -98,7 +100,7 @@ class LabelChunkController extends AppController
         {
             $start = new Date($this->request->query('start'));
             $startDisplay = $start;
-            $start->subDay(1);
+            //$start->subDay(1);
             $start = $start->format('Y-m-d');
             $end = new Date($this->request->query('end'));
             $endDisplay = $end;
@@ -106,7 +108,7 @@ class LabelChunkController extends AppController
             $end = $end->format('Y-m-d');
             $query->andWhere(['DataTwitter.t_time >' => $start]);
             $query->andWhere(['DataTwitter.t_time <' => $end]);
-            $startDisplay->addDay(1);
+            //$startDisplay->addDay(1);
             $endDisplay->subDay(1);
             $start = $startDisplay->format('d-m-Y');
             $end = $endDisplay->format('d-m-Y');
@@ -123,9 +125,22 @@ class LabelChunkController extends AppController
             $query->andWhere(['respondent_id' => $respondent_id]);
         }
         $respondents = $this->LabelChunk->DataTwitter->Respondents->find('all', [
-            'conditions' => ['Respondents.official' => true, 'Respondents.active' => true, 'Respondents.id !=' => 11],
+            'conditions' => [
+                'Respondents.official' => true,
+                'Respondents.t_user_id IS NOT' => null,
+                'Respondents.id !=' => 11,
+                'OR' => [
+                    'Respondents.active' => true,
+                    //'Respondents.tmc' => true
+                ]
+            ],
             'order' => ['Respondents.name']
         ]);
+
+        /*$respondents = $this->LabelChunk->DataTwitter->Respondents->find('all', [
+            'conditions' => ['Respondents.official' => true, 'Respondents.t_user_id IS NOT' => null, 'Respondents.id !=' => 11],
+            'order' => ['Respondents.name']
+        ]);*/
 
         $this->paginate = ['limit' => $this->limit];
         $this->set('breadcrumbs', $this->breadcrumbs);

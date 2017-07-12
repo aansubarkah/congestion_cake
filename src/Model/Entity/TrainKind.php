@@ -4,16 +4,16 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * DataKind Entity
+ * TrainKind Entity
  *
  * @property int $raw_id
  * @property string $info
  * @property \Cake\I18n\FrozenTime $t_time
  * @property int $kind_id
  * @property int $at_classification_id
- * @property bool $kind_verified
  * @property int $denomination_id
  * @property int $mt_classification_id
+ * @property bool $trained
  * @property int $classification_id
  * @property string $classification_name
  * @property int $respondent_id
@@ -28,7 +28,7 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\Classification $classification
  * @property \App\Model\Entity\Respondent $respondent
  */
-class DataKind extends Entity
+class TrainKind extends Entity
 {
 
 }

@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
+use Cake\I18n\Date;
 
 /**
  * DataWord Controller
@@ -14,7 +15,7 @@ use Cake\ORM\TableRegistry;
 class DataWordController extends AppController
 {
     public $title = 'Tagging';
-    public $limit = 10;
+    public $limit = 200;
 
     /*
      * breadcrumbs variable, format like
@@ -71,8 +72,80 @@ class DataWordController extends AppController
                 }
             }
         }
+        $Tags = TableRegistry::get('Tags');
+        $tags = $Tags->find('all', [
+            'order' => ['Tags.name']
+        ]);
+        $respondents = $this->DataWord->DataTwitter->Respondents->find('all', [
+            'conditions' => [
+                'Respondents.official' => true,
+                'Respondents.t_user_id IS NOT' => null,
+                'Respondents.id !=' => 11,
+                'OR' => [
+                    'Respondents.active' => true,
+                    //'Respondents.tmc' => true
+                ]
+            ],
+            'order' => ['Respondents.name']
+        ]);
 
-        $tags = $this->DataWord->Tags->find('all', [
+        /*$respondents = $this->LabelWord->DataTwitter->Respondents->find('all', [
+            'conditions' => ['Respondents.official' => true, 'Respondents.t_user_id IS NOT' => null, 'Respondents.id !=' => 11],
+            'order' => ['Respondents.name']
+        ]);*/
+
+        $query = $this->DataWord->DataTwitter->find('all');
+        $query->where(['DataTwitter.tagging' => false, 'DataTwitter.at_classification_id' => 1]);
+        $query->contain([
+            'DataWord' => [
+                'sort' => ['DataWord.sequence' => 'ASC']
+            ]
+        ]);
+
+        $start = '';
+        $end = '';
+        $respondent_id = 0;
+        if ($this->request->query('start') && $this->request->query('end'))
+        {
+            $start = new Date($this->request->query('start'));
+            $startDisplay = $start;
+            //$start->subDay(1);
+            $start = $start->format('Y-m-d');
+            $end = new Date($this->request->query('end'));
+            $endDisplay = $end;
+            $end->addDay(1);
+            $end = $end->format('Y-m-d');
+            $query->andWhere(['DataTwitter.t_time >' => $start]);
+            $query->andWhere(['DataTwitter.t_time <' => $end]);
+            //$startDisplay->addDay(1);
+            $endDisplay->subDay(1);
+            $start = $startDisplay->format('d-m-Y');
+            $end = $endDisplay->format('d-m-Y');
+        }
+        if ($this->request->query('sort'))
+        {
+            $query->order([
+                $this->request->query('sort') => $this->request->query('direction')
+            ]);
+        }
+        if ($this->request->query('respondent') && $this->request->query('respondent') > 0)
+        {
+            $respondent_id = $this->request->query('respondent');
+            $query->andWhere(['respondent_id' => $respondent_id]);
+        }
+
+        $this->paginate = ['limit' => $this->limit];
+
+        $this->set('breadcrumbs', $this->breadcrumbs);
+        $count = $query->count();
+
+        $data = $this->paginate($query);
+        $this->set('title', $this->title);
+        $this->set('limit', $this->limit);
+        $this->set(compact(['data','tags', 'respondents', 'start', 'end', 'respondent_id', 'count']));
+        $this->set('_serialize', ['data', 'tags', 'respondents']);
+
+        /*$tags = $this->DataWord->Tags->find('all', [
             'order' => ['Tags.name']
         ]);
 
@@ -105,7 +178,7 @@ class DataWordController extends AppController
         $this->set('limit', $this->limit);
         $this->set(compact('data'));
         $this->set('tags', $tags);
-        $this->set('_serialize', ['data', 'tags']);
+        $this->set('_serialize', ['data', 'tags']);*/
     }
 
     /**

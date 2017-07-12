@@ -7,26 +7,26 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
 /**
- * DataKind Model
+ * TrainKind Model
  *
- * @property \Cake\ORM\Association\BelongsTo $Raws
- * @property \Cake\ORM\Association\BelongsTo $DataTwitter
- * @property \Cake\ORM\Association\BelongsTo $Kinds
- * @property \Cake\ORM\Association\BelongsTo $AtClassifications
- * @property \Cake\ORM\Association\BelongsTo $Denominations
- * @property \Cake\ORM\Association\BelongsTo $MtClassifications
- * @property \Cake\ORM\Association\BelongsTo $Classifications
- * @property \Cake\ORM\Association\BelongsTo $Respondents
+ * @property \App\Model\Table\RawsTable|\Cake\ORM\Association\BelongsTo $Raws
+ * @property \App\Model\Table\RawsTable|\Cake\ORM\Association\BelongsTo $DataTwitter
+ * @property \App\Model\Table\KindsTable|\Cake\ORM\Association\BelongsTo $Kinds
+ * @property \App\Model\Table\AtClassificationsTable|\Cake\ORM\Association\BelongsTo $AtClassifications
+ * @property \App\Model\Table\DenominationsTable|\Cake\ORM\Association\BelongsTo $Denominations
+ * @property \App\Model\Table\MtClassificationsTable|\Cake\ORM\Association\BelongsTo $MtClassifications
+ * @property \App\Model\Table\ClassificationsTable|\Cake\ORM\Association\BelongsTo $Classifications
+ * @property \App\Model\Table\RespondentsTable|\Cake\ORM\Association\BelongsTo $Respondents
  *
- * @method \App\Model\Entity\DataKind get($primaryKey, $options = [])
- * @method \App\Model\Entity\DataKind newEntity($data = null, array $options = [])
- * @method \App\Model\Entity\DataKind[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\DataKind|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\DataKind patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\DataKind[] patchEntities($entities, array $data, array $options = [])
- * @method \App\Model\Entity\DataKind findOrCreate($search, callable $callback = null, $options = [])
+ * @method \App\Model\Entity\TrainKind get($primaryKey, $options = [])
+ * @method \App\Model\Entity\TrainKind newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\TrainKind[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\TrainKind|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\TrainKind patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\TrainKind[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\TrainKind findOrCreate($search, callable $callback = null, $options = [])
  */
-class DataKindTable extends Table
+class TrainKindTable extends Table
 {
 
     /**
@@ -39,12 +39,9 @@ class DataKindTable extends Table
     {
         parent::initialize($config);
 
-        $this->setTable('data_kind');
+        $this->setTable('train_kind');
 
         $this->belongsTo('Raws', [
-            'foreignKey' => 'raw_id'
-        ]);
-        $this->belongsTo('DataTwitter', [
             'foreignKey' => 'raw_id'
         ]);
         $this->belongsTo('Kinds', [
@@ -65,6 +62,9 @@ class DataKindTable extends Table
         $this->belongsTo('Respondents', [
             'foreignKey' => 'respondent_id'
         ]);
+        $this->belongsTo('DataTwitter', [
+            'foreignKey' => 'raw_id'
+        ]);
     }
 
     /**
@@ -83,8 +83,8 @@ class DataKindTable extends Table
             ->allowEmpty('t_time');
 
         $validator
-            ->boolean('kind_verified')
-            ->allowEmpty('kind_verified');
+            ->boolean('trained')
+            ->allowEmpty('trained');
 
         $validator
             ->allowEmpty('classification_name');

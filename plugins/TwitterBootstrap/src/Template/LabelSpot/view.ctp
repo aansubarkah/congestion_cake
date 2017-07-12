@@ -54,7 +54,7 @@ if (count($data->label_spot) > 0) {
     <div class="container-fluid">
 <?php
 echo $this->Form->create(null, [
-    'url' => ['controller' => 'LabelSpot', 'action' => 'view'],
+    'url' => ['controller' => 'LabelSpot', 'action' => 'view', $piece->piece_id],
     'id' => 'addPlaceForm'
 ]);
 ?>
@@ -65,9 +65,8 @@ echo $this->Form->create(null, [
                 <input name="place_id" type="hidden" id="addPlaceId" value=<?php echo $placeId; ?>>
                 <input name="place_lat" type="hidden" id="addPlaceLat" value=<?php echo $placeLat; ?>>
                 <input name="place_lng" type="hidden" id="addPlaceLng" value=<?php echo $placeLng; ?>>
-                <p id="addPlaceInfo"><?php echo $data->info; ?></p>
+                <p id="addPlaceInfo"><?php echo $piece->info; ?></p>
                 <span class="label label-default"><i class="fa fa-map-marker fa-fw"></i><?php echo $piece->place; ?></span> <span class="label label-default"><i class="fa fa-bullhorn fa-fw"></i><?php echo $piece->condition; ?></span> <span class="label label-default"><i class="fa fa-cloud fa-fw"></i><?php echo $piece->weather; ?></span>
-                <!--<textarea class="form-control" rows="3" id="addPlaceInfo" disabled></textarea>-->
             </div>
             <div class="form-group">
                 <div id="typeahead">

@@ -10,6 +10,7 @@ use Cake\Validation\Validator;
  * DataWord Model
  *
  * @property \Cake\ORM\Association\BelongsTo $Raws
+ * @property \Cake\ORM\Association\BelongsTo $DataTwitter
  * @property \Cake\ORM\Association\BelongsTo $Kinds
  * @property \Cake\ORM\Association\BelongsTo $Classifications
  * @property \Cake\ORM\Association\BelongsTo $Words
@@ -39,6 +40,9 @@ class DataWordTable extends Table
         $this->setTable('data_word');
 
         $this->belongsTo('Raws', [
+            'foreignKey' => 'raw_id'
+        ]);
+        $this->belongsTo('DataTwitter', [
             'foreignKey' => 'raw_id'
         ]);
         $this->belongsTo('Kinds', [

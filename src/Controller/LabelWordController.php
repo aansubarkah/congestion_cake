@@ -15,7 +15,7 @@ use Cake\I18n\Date;
 class LabelWordController extends AppController
 {
     public $title = 'Tagging';
-    public $limit = 5;
+    public $limit = 10;
 
     /*
      * breadcrumbs variable, format like
@@ -39,6 +39,36 @@ class LabelWordController extends AppController
         {
             $allNewSyllable = explode(',', $this->request->getData('new_syllable_ids'));
             $allNewTag = explode(',', $this->request->getData('new_tag_ids'));
+            $allOks = explode(',', $this->request->getData('all_oks'));
+
+            if (!empty($allOks))
+            {
+                // update syllable, raws, words
+                foreach ($allOks as $value)
+                {
+                    $query = $this->LabelWord->DataTwitter->Raws->Syllables->query();
+                    $query->update()
+                        ->set(['verified' => true])
+                        ->where(['raw_id' => $value])
+                        ->execute();
+
+                    // Update Raw
+                    $Raw = TableRegistry::get('Raws');
+                    $queryUpdateRaw = $Raw->query();
+                    $Word = TableRegistry::get('Words');
+                    $queryUpdateWord = $Word->query();
+
+                    $queryUpdateRaw->update()
+                        ->set(['tagging' => true])
+                        ->where(['id' => $value])
+                        ->execute();
+                    // Update Word
+                    $queryUpdateWord->update()
+                        ->set(['verified' => true])
+                        ->where(['raw_id' => $value])
+                        ->execute();
+                }
+            }
 
             if (!empty($allNewSyllable))
             {
@@ -87,6 +117,8 @@ class LabelWordController extends AppController
                         ->execute();
                 }
             }
+            // redirect to uri
+            return $this->redirect($this->referer());
         }
 
         $Tags = TableRegistry::get('Tags');
@@ -94,9 +126,22 @@ class LabelWordController extends AppController
             'order' => ['Tags.name']
         ]);
         $respondents = $this->LabelWord->DataTwitter->Respondents->find('all', [
-            'conditions' => ['Respondents.official' => true, 'Respondents.active' => true, 'Respondents.id !=' => 11],
+            'conditions' => [
+                'Respondents.official' => true,
+                'Respondents.t_user_id IS NOT' => null,
+                'Respondents.id !=' => 11,
+                'OR' => [
+                    'Respondents.active' => true,
+                    //'Respondents.tmc' => true
+                ]
+            ],
             'order' => ['Respondents.name']
         ]);
+
+        /*$respondents = $this->LabelWord->DataTwitter->Respondents->find('all', [
+            'conditions' => ['Respondents.official' => true, 'Respondents.t_user_id IS NOT' => null, 'Respondents.id !=' => 11],
+            'order' => ['Respondents.name']
+        ]);*/
 
         $query = $this->LabelWord->DataTwitter->find('all');
         $query->where(['DataTwitter.tagging' => false, 'DataTwitter.mt_classification_id' => 1]);
@@ -113,7 +158,7 @@ class LabelWordController extends AppController
         {
             $start = new Date($this->request->query('start'));
             $startDisplay = $start;
-            $start->subDay(1);
+            //$start->subDay(1);
             $start = $start->format('Y-m-d');
             $end = new Date($this->request->query('end'));
             $endDisplay = $end;
@@ -121,7 +166,7 @@ class LabelWordController extends AppController
             $end = $end->format('Y-m-d');
             $query->andWhere(['DataTwitter.t_time >' => $start]);
             $query->andWhere(['DataTwitter.t_time <' => $end]);
-            $startDisplay->addDay(1);
+            //$startDisplay->addDay(1);
             $endDisplay->subDay(1);
             $start = $startDisplay->format('d-m-Y');
             $end = $endDisplay->format('d-m-Y');

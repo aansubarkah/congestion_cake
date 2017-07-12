@@ -14,7 +14,7 @@ use Cake\I18n\Date;
 class LabelKindController extends AppController
 {
     public $title = 'Twitter';
-    public $limit = 10;
+    public $limit = 20;
 
     /*
      * breadcrumbs variable, format like
@@ -41,15 +41,21 @@ class LabelKindController extends AppController
             if (!empty($allRelevant))
             {
                 $data = [];
+                $label = TableRegistry::get('Denominations');
                 foreach ($allRelevant as $value)
                 {
-                    array_push($data, [
-                        'raw_id' => $value,
-                        'classification_id' => 1,
-                        'user_id' => 1,
-                        'trained' => false,
-                        'active' => true
-                    ]);
+                    // Check if raw_id exists in denominations table
+                    $exists = $label->exists(['raw_id' => $value, 'active' => true]);
+                    if (!$exists)
+                    {
+                        array_push($data, [
+                            'raw_id' => $value,
+                            'classification_id' => 1,
+                            'user_id' => 1,
+                            'trained' => false,
+                            'active' => true
+                        ]);
+                    }
                     // Update Raw
                     $Raw = TableRegistry::get('Raws');
                     $queryUpdateRaw = $Raw->query();
@@ -67,7 +73,7 @@ class LabelKindController extends AppController
                         ->execute();
 
                 }
-                $label = TableRegistry::get('Denominations');
+                //$label = TableRegistry::get('Denominations');
                 $entities = $label->newEntities($data);
                 $result = $label->saveMany($entities);
             }
@@ -104,10 +110,20 @@ class LabelKindController extends AppController
                 $entities = $label->newEntities($data);
                 $result = $label->saveMany($entities);
             }
+            // redirect to uri
+            return $this->redirect($this->referer());
         }
 
         $respondents = $this->LabelKind->DataTwitter->Respondents->find('all', [
-            'conditions' => ['Respondents.official' => true, 'Respondents.active' => true],
+            'conditions' => [
+                'Respondents.official' => true,
+                'Respondents.t_user_id IS NOT' => null,
+                'Respondents.id !=' => 11,
+                'OR' => [
+                    'Respondents.active' => true,
+                    //'Respondents.tmc' => true
+                ]
+            ],
             'order' => ['Respondents.name']
         ]);
         $query = $this->LabelKind->DataTwitter->find('all');
@@ -120,7 +136,7 @@ class LabelKindController extends AppController
         {
             $start = new Date($this->request->query('start'));
             $startDisplay = $start;
-            $start->subDay(1);
+            //$start->subDay(1);
             $start = $start->format('Y-m-d');
             $end = new Date($this->request->query('end'));
             $endDisplay = $end;
@@ -128,7 +144,7 @@ class LabelKindController extends AppController
             $end = $end->format('Y-m-d');
             $query->andWhere(['DataTwitter.t_time >' => $start]);
             $query->andWhere(['DataTwitter.t_time <' => $end]);
-            $startDisplay->addDay(1);
+            //$startDisplay->addDay(1);
             $endDisplay->subDay(1);
             $start = $startDisplay->format('d-m-Y');
             $end = $endDisplay->format('d-m-Y');

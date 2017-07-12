@@ -28,11 +28,15 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\Respondent $respondent
  * @property \App\Model\Entity\DataChunk $datachunk
  * @property \App\Model\Entity\DataPiece $datapiece
+ * @property \App\Model\Entity\DataKind $datakind
+ * @property \App\Model\Entity\DataWord $dataword
  * @property \App\Model\Entity\DataSpot $dataspot
  * @property \App\Model\Entity\LabelKind $labelkind
  * @property \App\Model\Entity\LabelWord $labelword
  * @property \App\Model\Entity\LabelChunk $labelchunk
  * @property \App\Model\Entity\LabelSpot $labelspot
+ * @property \App\Model\Entity\TrainKind $trainkind
+ * @proerty \App\Model\Entity\TrainWord $trainword
  */
 class DataTwitter extends Entity
 {

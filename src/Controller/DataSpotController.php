@@ -2,6 +2,8 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Cake\I18n\Date;
 
 /**
  * DataSpot Controller
@@ -13,7 +15,7 @@ use App\Controller\AppController;
 class DataSpotController extends AppController
 {
     public $title = 'Spoting';
-    public $limit = 10;
+    public $limit = 200;
 
     /*
      * breadcrumbs variable, format like
@@ -31,7 +33,81 @@ class DataSpotController extends AppController
      */
     public function index()
     {
-        $query = $this->DataSpot->DataTwitter->find('all', [
+        $query = $this->DataSpot->DataTwitter->find('all');
+        $query->where(['DataTwitter.at_classification_id' => 1]);
+        $query->contain(['DataSpot', 'DataChunk']);
+
+        $start = '';
+        $end = '';
+        $respondent_id = 0;
+        if ($this->request->query('start') && $this->request->query('end'))
+        {
+            $start = new Date($this->request->query('start'));
+            $startDisplay = $start;
+            //$start->subDay(1);
+            $start = $start->format('Y-m-d');
+            $end = new Date($this->request->query('end'));
+            $endDisplay = $end;
+            $end->addDay(1);
+            $end = $end->format('Y-m-d');
+            $query->andWhere(['DataTwitter.t_time >' => $start]);
+            $query->andWhere(['DataTwitter.t_time <' => $end]);
+            //$startDisplay->addDay(1);
+            $endDisplay->subDay(1);
+            $start = $startDisplay->format('d-m-Y');
+            $end = $endDisplay->format('d-m-Y');
+        }
+        if ($this->request->query('sort'))
+        {
+            $query->order([
+                $this->request->query('sort') => $this->request->query('direction')
+            ]);
+        }
+        if ($this->request->query('respondent') && $this->request->query('respondent') > 0)
+        {
+            $respondent_id = $this->request->query('respondent');
+            $query->andWhere(['respondent_id' => $respondent_id]);
+        }
+        $respondents = $this->DataSpot->DataTwitter->Respondents->find('all', [
+            'conditions' => [
+                'Respondents.official' => true,
+                'Respondents.t_user_id IS NOT' => null,
+                'Respondents.id !=' => 11,
+                'OR' => [
+                    'Respondents.active' => true,
+                    //'Respondents.tmc' => true
+                ]
+            ],
+            'order' => ['Respondents.name']
+        ]);
+
+        /*$respondents = $this->LabelSpot->DataTwitter->Respondents->find('all', [
+            'conditions' => ['Respondents.official' => true, 'Respondents.t_user_id IS NOT' => null, 'Respondents.id !=' => 11],
+            'order' => ['Respondents.name']
+        ]);*/
+
+        $Categories = TableRegistry::get('Categories');
+        $categories = $Categories->find('all', [
+            'conditions' => ['Categories.active' => true],
+            'order' => ['Categories.name']
+        ]);
+        $Weather = TableRegistry::get('Weather');
+        $weather = $Weather->find('all', [
+            'conditions' => ['Weather.active' => true],
+            'order' => ['Weather.name']
+        ]);
+
+        $this->paginate = ['limit' => $this->limit];
+        $this->set('breadcrumbs', $this->breadcrumbs);
+        $count = $query->count();
+
+        $data = $this->paginate($query);
+        $this->set('title', $this->title);
+        $this->set('limit', $this->limit);
+        $this->set(compact(['data','tags', 'respondents', 'start', 'end', 'respondent_id', 'count', 'categories', 'weather']));
+        $this->set('_serialize', ['data', 'tags', 'respondents']);
+
+        /*$query = $this->DataSpot->DataTwitter->find('all', [
             'conditions' => ['DataTwitter.at_classification_id' => 1],
             'contain' => ['DataChunk', 'DataSpot']
         ]);
@@ -53,7 +129,7 @@ class DataSpotController extends AppController
         $this->set('title', 'Spoting');
         $this->set('limit', $this->limit);
         $this->set(compact('data'));
-        $this->set('_serialize', ['data']);
+        $this->set('_serialize', ['data']);*/
     }
 
     /**

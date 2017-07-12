@@ -3,21 +3,38 @@
 <?php
 echo $this->Form->create(null, [
     'url' => ['controller' => 'DataSpot', 'action' => 'index'],
-    'type' => 'get'
+    'type' => 'get',
+    'class' => 'form-inline'
 ]);
 ?>
-        <div class="input-group custom-search-form">
-            <input name="search" class="form-control" placeholder="Pencarian Info..." type="text" autocomplete="off">
-            <span class="input-group-btn">
-                <button class="btn btn-default" type="submit">
-                    <i class="fa fa-search"></i>
-                </button>
-            </span>
+        <div class="form-group">
+        <input type="text" class="form-control datepicker" id="startDate" name="start" placeholder="Start" value="<?php echo $start; ?>">
         </div>
-        <!-- /.custom-search-form -->
+        <div class="form-group">
+            <input type="text" class="form-control datepicker" id="endDate" name="end" placeholder="End" value="<?php echo $end; ?>">
+        </div>
+<?php
+$options = [0 => 'All Respondents'];
+foreach ($respondents as $respondent)
+{
+    if ($respondent->id != 11) $options[$respondent->id] = $respondent->name;
+}
+echo '<div class="form-group">';
+echo $this->Form->select('field', $options, ['class' => 'form-control', 'id' => 'respondent', 'name' => 'respondent', 'value' => $respondent_id]);
+echo '</div>';
+?>
+        <div class="form-group">
+            <input type="text" class="form-control" value="Contain <?php echo $count; ?> rows" disabled>
+        </div>
+        <div class="form-group pull-right">
+            <button type="submit" class="btn btn-default">Search</button>
+        </div>
+
+                <!-- /.custom-search-form -->
 <?php
 echo $this->Form->end();
 ?>
+
     </div>
     <!-- /.panel-heading -->
     <div class="panel-body">
@@ -89,7 +106,7 @@ foreach($data as $datum)
         }
     }
     echo '<br><br>';
-    echo $this->Html->link(
+    /*echo $this->Html->link(
         'Perbaiki',
         '#',
         [
@@ -100,7 +117,7 @@ foreach($data as $datum)
             'raw-id' => $datum->raw_id,
             'info' => $datum->info
         ]
-    );
+    );*/
     echo ' ';
     if (!empty($datum->data_spot))
     {
@@ -152,11 +169,15 @@ foreach($data as $datum)
             </tbody>
         </table>
     </div>
-    <div class="row pull-right">
+    <div class="row">
+        <div class="col-md-12">
+        </div>
+    </div>
+    <!--<div class="row pull-right">
         <div class="col-md-10 col-md-offset-2">
             <button id="btn-save" type="button" class="btn btn-primary">Simpan</button>
         </div>
-    </div>
+    </div>-->
     <!-- /.row -->
     <div class="row"></div>
     <div class="row pull-right">
@@ -232,9 +253,20 @@ echo $this->Form->hidden('all_weather', [
     </div>
   </div>
 </div><!--/.Modal-->
-
+<?php
+echo $this->Html->script(['bootstrap-datepicker.min', 'bootstrap-datepicker.id.min']);
+echo $this->Html->css(['bootstrap-datepicker3.min']);
+?>
 <script type="text/javascript">
     $(function(){
+        $('.datepicker').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: true,
+            language: 'id',
+            startDate: 0,
+            todayHighlight: true
+        });
+
         raws = {};
         places = {};
         conditions = {};
